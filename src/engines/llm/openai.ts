@@ -45,6 +45,10 @@ export interface OpenAIConfig {
 const DEBUG_CHUNKS = false;
 
 export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngine {
+    if (!config.apiKey) {
+        throw new Error('OpenAI > Missing apiKey');
+    }
+
     const MAX_CHUNK_SIZE = Math.min(100, Math.max(5, config.chunkSize || 50));
 
     const openai = new OpenAI({apiKey: config.apiKey});

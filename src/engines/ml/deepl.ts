@@ -20,6 +20,10 @@ export interface DeepLConfig {
 }
 
 export function createDeepLTranslateEngine(config: DeepLConfig): TranslateEngine {
+    if (!config.apiKey) {
+        throw new Error('DeepL > Missing apiKey');
+    }
+
     const API_BASE = 'https://api.deepl.com/v2/';
 
     async function fetchTranslations(targetLanguageCode: string, translations: string[], options: TranslateOptions): Promise<DeepLSuccessResult> {

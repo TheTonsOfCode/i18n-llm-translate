@@ -65,6 +65,9 @@ Dirty on removed languages inside cache
 ### Placing '!!!' (three exclamation marks) at the beginning of a value forces the regeneration of that value during the next generation cycle and removes the exclamation marks from the beginning of the value.
 
 
+### Add "_engine" field to the cache, so we can regenerate specific cached fields when swapping the engine if user wants
+
+
 ### `$context` Functionality
 
 - It is removed from the final translations.

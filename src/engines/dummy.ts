@@ -4,21 +4,29 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions
 } from "$/type";
-import {z} from "zod";
 
-export function createDummyTranslateEngine(prefix: string = '$lng-dummy__'): TranslateEngine {
+/**
+ *
+ * @param valueFormat (parameters: $languageCode, $value)
+ */
+export function createDummyTranslateEngine(valueFormat: string = '$languageCode-dummy__$value'): TranslateEngine {
 
-    function prefixStrings(obj: any, prefix: string): any {
+    function formatStrings(obj: any, valueFormat: string): any {
         if (typeof obj === 'string') {
-            return `${prefix}${obj}`;
+            return valueFormat.replace('$value', obj);
         } else if (Array.isArray(obj)) {
-            return obj.map(value => prefixStrings(value, prefix));
+            return obj.map(value => formatStrings(value, valueFormat));
         } else if (typeof obj === 'object' && obj !== null) {
             return Object.fromEntries(
-                Object.entries(obj).map(([key, value]) => [key, prefixStrings(value, prefix)])
+                Object.entries(obj).map(([key, value]) => [key, formatStrings(value, valueFormat)])
             );
         }
         return obj;
+    }
+
+    function replaceLang(languageCode: string): string {
+        return valueFormat
+            .replace('$languageCode', languageCode)
     }
 
     return {
@@ -32,7 +40,7 @@ export function createDummyTranslateEngine(prefix: string = '$lng-dummy__'): Tra
 
             for (let targetLanguageCode of options.targetLanguageCodes) {
 
-                languages[targetLanguageCode] = prefixStrings(translations, prefix.replace('$lng', targetLanguageCode));
+                languages[targetLanguageCode] = formatStrings(translations, replaceLang(targetLanguageCode));
             }
 
             return languages;
@@ -47,7 +55,7 @@ export function createDummyTranslateEngine(prefix: string = '$lng-dummy__'): Tra
 
             for (let targetLanguageCode in targetLanguageTranslationsKeys) {
 
-                languages[targetLanguageCode] = prefixStrings(targetLanguageTranslationsKeys[targetLanguageCode], prefix.replace('$lng', targetLanguageCode));
+                languages[targetLanguageCode] = formatStrings(targetLanguageTranslationsKeys[targetLanguageCode], replaceLang(targetLanguageCode));
 
             }
 
