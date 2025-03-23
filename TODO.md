@@ -1,40 +1,67 @@
 
 # TODO
 
-Some logger? Instead of console logs...
+
+### CLI ...
 
 
-Tests:
-    - locale/ directories with dummy-engine 
-    - cache tests
-    - openai engine tests
+### Instead of baseLanguageCodePrefixWithDot
+```json5
+{
+  namesMapping: {
+    // Both have by default: '{language}'
+    languageContainers: {
+      base: '.{language}',
+      translated: '{language}_generated'
+    }
+  }
+}
+```
+
+### Consider naming
+'Engine' is pretty good as it can be LLM, or some provider like DeepL,Google
+
+maybe "provider"?
+
+### Some logger? Instead of console logs...
 
 
-Application context move to engines instead of options.
-    Translators like google, or deepl do not use that
+### Tests:
+- locale/ directories with dummy-engine 
+- cache tests
+- openai engine tests
 
 
-Do we even need caching other languages translations? Probably not.
-    Make flag for that:
-    - as default it saves only base language as a string, not a subkey
-    - when true it saves all languages as it is now
+### Application context move to engines instead of options.
+Translators like google, or deepl do not use that
 
+
+### Do we even need caching other languages translations? Probably not.
+Make flag for that:
+- as default it saves only base language as a string, not a subkey
+- when true it saves all languages as it is now
+
+### Dirty flags
 Add dirty to namespaces so when just one namespace changes we do not save them all
+
 Dirty on removed languages inside cache
 
-Remove openapi package and just use simple fetch
+### Remove openapi package and just use simple fetch
 
-Support of other translations format like:
+### Support of other translations format like:
 - properties
 - yaml
 
-Support of other translations engines:
+### Support of other translations engines:
 - google translate
 - deepseek API / locally hosted deepseek
 - deepl
 
 
-Greek characters broken JSON.parse???
+### Greek characters broken JSON.parse???
+
+
+### Placing '!!!' (three exclamation marks) at the beginning of a value forces the regeneration of that value during the next generation cycle and removes the exclamation marks from the beginning of the value.
 
 
 ### `$context` Functionality
