@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2025-03-23
+
+### Changed
+
+- Changed directory name engines/mt -> engines/ml. Machine (Translate -> Learning)
+
+
 ## [1.1.1] - 2025-03-23
 
 ### Changed
-- **Restructured engine files** to separate them into two distinct categories: **LLM (Large Language Models)** and **MT (Machine Translation)** for better clarity.
+- **Restructured engine files** to separate them into two distinct categories: **LLM (Large Language Models)** and **ML (Machine Learning/Traditional)** for better clarity.
 - Added **placeholder files** for potential future translators to streamline future implementations.
 
 ---

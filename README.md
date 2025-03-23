@@ -5,4 +5,4 @@
 
 #### Engine type
 - llm (Large Language Model)
-- mt (Machine Translation) - traditional translate api like DeepL, Google Translate
+- ml (Machine Learning) - traditional translate api like DeepL, Google Translate
