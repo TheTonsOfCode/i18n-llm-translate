@@ -231,7 +231,6 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         name: 'OpenAI',
         async translate(
             translations: Record<string, any>,
-            translationsSchema: z.ZodObject<any>, // Schemas are proper but we need to chunk them
             options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
 
@@ -250,7 +249,6 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
 
         async translateMissed(
             missingTranslations: TranslateNamespaceMissingTranslations,
-            translationsSchema: z.ZodObject<any>,
             options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
 

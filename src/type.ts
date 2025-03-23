@@ -1,5 +1,3 @@
-import {z} from "zod";
-
 export interface TranslateOptions {
     languagesDirectoryPath: string;
 
@@ -24,13 +22,11 @@ export interface TranslateEngine {
 
     translate(
         translations: Record<string, any>,
-        translationsSchema: z.ZodObject<any>,
         options: TranslateOptions
     ): Promise<TranslateEngineTranslateResult>;
 
     translateMissed(
         missingTranslations: TranslateNamespaceMissingTranslations,
-        translationsSchema: z.ZodObject<any>,
         options: TranslateOptions
     ): Promise<TranslateEngineTranslateResult>;
 }

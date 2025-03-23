@@ -44,7 +44,7 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const engineResultSchema = generateLanguagesTranslateReturnZodSchema(options.targetLanguageCodes, baseDifferencesSchema);
 
             console.log(`Translation# Translating base differences for namespace: "${namespace.jsonFileName}".`);
-            const translationsResults = await engine.translate(baseDifferences, engineResultSchema, options);
+            const translationsResults = await engine.translate(baseDifferences, options);
 
             const engineCheck = engineResultSchema.safeParse(translationsResults);
 
@@ -75,7 +75,7 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             if (options.debug) console.log(`Translation# Missed translations: `, JSON.stringify(missed, null, 2));
             // `baseLanguageTranslations` contains merged missing translations, regardless of the language,
             // while avoiding duplicates. This reduces the required context, leading to lower token consumption.
-            const translationsResults = await engine.translateMissed(missed, engineResultSchema, options);
+            const translationsResults = await engine.translateMissed(missed, options);
 
             const engineCheck = engineResultSchema.safeParse(translationsResults);
 

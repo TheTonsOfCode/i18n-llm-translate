@@ -25,7 +25,6 @@ export function createDummyTranslateEngine(prefix: string = '$lng-dummy__'): Tra
         name: 'Dummy (Flow testing)',
         async translate(
             translations: Record<string, any>,
-            translationsSchema: z.ZodObject<any>,
             options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
 
@@ -42,7 +41,6 @@ export function createDummyTranslateEngine(prefix: string = '$lng-dummy__'): Tra
             {
                 targetLanguageTranslationsKeys
             }: TranslateNamespaceMissingTranslations,
-            translationsSchema: z.ZodObject<any>,
             options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
             const languages: any = {};
