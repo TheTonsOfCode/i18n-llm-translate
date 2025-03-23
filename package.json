@@ -4,7 +4,7 @@
   "description": "Automatically translates namespace-based JSON translation files across multiple languages from any source language",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./build.sh"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,15 @@
     "json-i18n"
   ],
   "author": "TheTonsOfCode",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.24.2",
+    "openai": "^4.89.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "typescript": "^5.6.3",
+    "shx": "^0.3.4",
+    "tsc-alias": "^1.8.10"
+  }
 }
