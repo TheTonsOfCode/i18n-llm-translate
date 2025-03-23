@@ -1,0 +1,29 @@
+{
+  "name": "i18n-auto-translate",
+  "version": "1.0.0",
+  "description": "Automatically translates namespace-based JSON translation files across multiple languages from any source language",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheTonsOfCode/i18n-auto-translate"
+  },
+  "keywords": [
+    "i18n",
+    "auto-translate",
+    "translation",
+    "json-translation",
+    "localization",
+    "multi-language",
+    "namespace-translate",
+    "intl",
+    "translations",
+    "language-automation",
+    "auto-localization",
+    "json-i18n"
+  ],
+  "author": "TheTonsOfCode",
+  "license": "MIT"
+}
