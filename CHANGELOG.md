@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - YYYY-MM-DD
+
+### Changed
+- **Restructured engine files** to separate them into two distinct categories: **LLM (Large Language Models)** and **MT (Machine Translation)** for better clarity.
+- Added **placeholder files** for potential future translators to streamline future implementations.
+
+---
+
 ## [1.1.0] - 2025-03-23
 
 ### Added
