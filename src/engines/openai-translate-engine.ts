@@ -140,7 +140,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         return chunks;
     }
 
-    async function fetchTranslations(chunks: OpenAIChunk[],  options: TranslateOptions) {
+    async function fetchTranslations(chunks: OpenAIChunk[], options: TranslateOptions) {
         const systemContext = [
             ...ABSOLUTE_CONTEXT,
 
@@ -229,6 +229,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
 
     return {
         name: 'OpenAI',
+
         async translate(
             translations: Record<string, any>,
             options: TranslateOptions
