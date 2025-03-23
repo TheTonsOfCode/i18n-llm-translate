@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo "Removing existing 'dist' directory..."
 shx rm -rf dist
 shx mkdir dist

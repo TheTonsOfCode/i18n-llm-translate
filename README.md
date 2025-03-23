@@ -1,1 +1,1 @@
-# i18n-auto-translate
+# i18n-llm-translate
