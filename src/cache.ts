@@ -59,7 +59,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
             function walk(
                 cache: Record<string, any>,
                 baseTranslations: TranslateNamespace['baseLanguageTranslations'],
-                targetLanguagesTranslations: TranslateNamespace['targetLanguageTranslations']
+                targetLanguagesTranslations: TranslateNamespace['targetLanguages']
             ) {
                 // Remove keys which are no longer at base translations
                 if (typeof baseTranslations === 'object') for (let cacheKey in cache) {
@@ -115,7 +115,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
                 content[namespace.jsonFileName] = walk(
                     cacheNamespace,
                     deepCopy(namespace.baseLanguageTranslations),
-                    deepCopy(namespace.targetLanguageTranslations)
+                    deepCopy(namespace.targetLanguages)
                 );
             }
         },

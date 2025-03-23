@@ -50,7 +50,8 @@ export interface TranslateNamespace {
 
     baseLanguageTranslations: Record<string, any>;
 
-    targetLanguageTranslations: {
+    targetLanguages: {
+        dirty: boolean;
         languageCode: string;
         translations: Record<string, any>;
     }[];

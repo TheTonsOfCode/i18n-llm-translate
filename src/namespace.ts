@@ -77,26 +77,36 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
             namespaces.push({
                 jsonFileName: fileName,
                 baseLanguageTranslations: content,
-                targetLanguageTranslations: [],
+                targetLanguages: [],
                 async write(): Promise<void> {
+                    const savedLanguages: string[] = []
+
                     for (let targetLanguageCode of options.targetLanguageCodes) {
                         const targetFilePath = path.join(languagesDirectory, targetLanguageCode, fileName);
                         try {
-                            let targetContent: any = this.targetLanguageTranslations
-                                .find(t => t.languageCode === targetLanguageCode)!
-                                .translations;
+                            const targetLanguage = this.targetLanguages
+                                .find(t => t.languageCode === targetLanguageCode)!;
+
+                            if (!targetLanguage.dirty) continue;
+
+                            let targetContent: any = targetLanguage.translations;
 
                             await fs.writeFile(targetFilePath, JSON.stringify(targetContent, null, 4), 'utf-8');
-                            console.log(`Translation# Successfully wrote translations to ${targetFilePath}`);
+                            savedLanguages.push(targetLanguageCode);
                         } catch (error) {
                             console.error(`Translation# Error writing to ${targetFilePath}:`, error);
                         }
+                    }
+
+                    if (savedLanguages.length) {
+                        const languages = savedLanguages.length === 1 ? savedLanguages[0] : `(\n ${savedLanguages.join(', ')}\n)`;
+                        console.log(`Translation# Successfully wrote translations to ${languagesDirectory}/${languages}/${fileName}`);
                     }
                 },
                 getMissingTranslations(): TranslateNamespaceMissingTranslations | undefined {
                     function walk(
                         baseTranslations: TranslateNamespace['baseLanguageTranslations'],
-                        targetLanguagesTranslations: TranslateNamespace['targetLanguageTranslations']
+                        targetLanguagesTranslations: TranslateNamespace['targetLanguages']
                     ): TranslateNamespaceMissingTranslations | undefined {
 
                         const x: TranslateNamespaceMissingTranslations = {
@@ -116,11 +126,11 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                         for (const [key, value] of Object.entries(baseTranslations)) {
                             if (typeof value === "object") {
                                 // Dig target languages
-                                const targetDig: TranslateNamespace['targetLanguageTranslations'] = []
-                                for (let {languageCode, translations} of targetLanguagesTranslations) {
+                                const targetDig: TranslateNamespace['targetLanguages'] = []
+                                for (let {translations, ...rest} of targetLanguagesTranslations) {
                                     targetDig.push({
-                                        languageCode,
                                         translations: translations[key] || {},
+                                        ...rest
                                     })
                                 }
 
@@ -154,7 +164,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                         return x;
                     }
 
-                    return walk(this.baseLanguageTranslations, this.targetLanguageTranslations);
+                    return walk(this.baseLanguageTranslations, this.targetLanguages);
                 }
             })
         } catch (error) {
@@ -202,7 +212,8 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                     throw error;
                 }
 
-                namespace.targetLanguageTranslations.push({
+                namespace.targetLanguages.push({
+                    dirty: false,
                     languageCode: targetLanguageCode,
                     translations: cleanTargetTranslations(namespace.baseLanguageTranslations, content),
                 })
@@ -218,8 +229,9 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
 
 export function applyEngineTranslations(namespace: TranslateNamespace, engineTranslations: TranslateEngineTranslateResult): void {
     for (let languageCode of Object.keys(engineTranslations)) {
-        const languageContainer = namespace.targetLanguageTranslations.find(lang => lang.languageCode === languageCode)!;
-        mergeObjects(languageContainer.translations, engineTranslations[languageCode])
+        const targetLanguage = namespace.targetLanguages.find(lang => lang.languageCode === languageCode)!;
+        mergeObjects(targetLanguage.translations, engineTranslations[languageCode])
+        targetLanguage.dirty = true;
     }
 }
 

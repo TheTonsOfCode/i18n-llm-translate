@@ -42,7 +42,6 @@ Make flag for that:
 - when true it saves all languages as it is now
 
 ### Dirty flags
-Add dirty to namespaces so when just one namespace changes we do not save them all
 
 Dirty on removed languages inside cache
 
