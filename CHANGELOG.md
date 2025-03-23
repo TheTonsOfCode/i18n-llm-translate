@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.1.1] - YYYY-MM-DD
+## [1.1.1] - 2025-03-23
 
 ### Changed
 - **Restructured engine files** to separate them into two distinct categories: **LLM (Large Language Models)** and **MT (Machine Translation)** for better clarity.
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Integrated **DeepL translator** for enhanced translation capabilities.
 - Introduced **dirty flags for namespaces**, ensuring only modified namespaces are saved.
-- Implemented **log aggregation** for multiple languages within a single namespace to reduce console clutter.
+- Implemented **log aggregation** for multiple languages within a single namespace to reduce console clutter.cd 
 
 ---
 

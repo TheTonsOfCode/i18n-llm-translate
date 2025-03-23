@@ -45,7 +45,9 @@ Make flag for that:
 
 Dirty on removed languages inside cache
 
-### Remove openapi package and just use simple fetch
+### Remove openai package and just use simple fetch
+
+### Change openai "Chunk" > "Batch"
 
 ### Support of other translations format like:
 - properties
