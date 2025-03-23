@@ -17,6 +17,6 @@ fi
 echo "TypeScript compilation successful."
 
 echo "Copying basic files to the 'dist' directory..."
-shx cp package.json README.md dist
+shx cp package.json README.md CHANGELOG.md dist
 
 echo "Build process completed successfully."
