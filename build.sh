@@ -3,8 +3,8 @@
 set -e
 
 echo "Removing existing 'dist' directory..."
-shx rm -rf dist
-shx mkdir dist
+rm -rf dist
+mkdir dist
 echo "'dist' directory prepared."
 
 echo "Compiling TypeScript files..."
@@ -17,6 +17,6 @@ fi
 echo "TypeScript compilation successful."
 
 echo "Copying basic files to the 'dist' directory..."
-shx cp package.json README.md CHANGELOG.md dist
+cp package.json README.md CHANGELOG.md dist
 
 echo "Build process completed successfully."
