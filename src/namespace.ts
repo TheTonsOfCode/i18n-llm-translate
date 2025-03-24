@@ -4,7 +4,7 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions
 } from "$/type";
-import {logWithColor} from "$/util";
+import {formatLanguageContainerDirectoryName, logWithColor} from "$/util";
 import path from "path";
 import {promises as fs} from 'fs';
 
@@ -52,7 +52,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
 
     const baseLanguageDirectory = path.resolve(
         languagesDirectory,
-        options.baseLanguageCodePrefixWithDot ? `.${options.baseLanguageCode}` : options.baseLanguageCode
+        formatLanguageContainerDirectoryName(options.baseLanguageCode, options)
     );
 
     const namespaces: TranslateNamespace[] = [];
@@ -82,13 +82,13 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                     const savedLanguages: string[] = []
 
                     for (let targetLanguageCode of options.targetLanguageCodes) {
-                        const targetFilePath = path.join(languagesDirectory, targetLanguageCode, fileName);
+                        const targetLanguage = this.targetLanguages
+                            .find(t => t.languageCode === targetLanguageCode)!;
+
+                        if (!targetLanguage.dirty) continue;
+
+                        const targetFilePath = path.join(languagesDirectory, formatLanguageContainerDirectoryName(targetLanguageCode, options), fileName);
                         try {
-                            const targetLanguage = this.targetLanguages
-                                .find(t => t.languageCode === targetLanguageCode)!;
-
-                            if (!targetLanguage.dirty) continue;
-
                             let targetContent: any = targetLanguage.translations;
 
                             await fs.writeFile(targetFilePath, JSON.stringify(targetContent, null, 4), 'utf-8');
@@ -183,7 +183,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
     }
 
     for (let targetLanguageCode of options.targetLanguageCodes) {
-        const targetLanguageDirectory = path.resolve(languagesDirectory, targetLanguageCode);
+        const targetLanguageDirectory = path.resolve(languagesDirectory, formatLanguageContainerDirectoryName(targetLanguageCode, options));
 
         try {
             await fs.access(targetLanguageDirectory);

@@ -1,13 +1,14 @@
 import {TranslateNamespace, TranslateOptions} from "$/type";
+import {formatLanguageContainerDirectoryName} from "$/util";
 import path from "path";
 import {promises as fs} from 'fs';
 
 export async function cleanLanguagesDirectory(options: TranslateOptions): Promise<void> {
     const languagesDirectory = path.resolve(process.env.PWD!, options.languagesDirectoryPath);
     const validEntries = new Set([
-        ...options.targetLanguageCodes,
-        options.baseLanguageCodePrefixWithDot ? `.${options.baseLanguageCode}` : options.baseLanguageCode,
-        options.jsonCacheName
+        ...options.targetLanguageCodes.map(language => formatLanguageContainerDirectoryName(language, options)),
+        formatLanguageContainerDirectoryName(options.baseLanguageCode, options),
+        options.namesMapping!.jsonCache!
     ]);
 
     try {
@@ -45,7 +46,7 @@ export async function cleanNamespaces(options: TranslateOptions, namespaces: Tra
     );
 
     for (const targetLanguageCode of options.targetLanguageCodes) {
-        const targetLanguageDirectory = path.join(languagesDirectory, targetLanguageCode);
+        const targetLanguageDirectory = path.join(languagesDirectory, formatLanguageContainerDirectoryName(targetLanguageCode, options));
 
         try {
             const entries = await fs.readdir(targetLanguageDirectory, { withFileTypes: true });

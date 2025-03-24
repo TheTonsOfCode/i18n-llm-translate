@@ -1,5 +1,5 @@
 import {TranslateNamespace, TranslateOptions} from "$/type";
-import {logWithColor} from "$/util";
+import {formatLanguageContainerDirectoryName, logWithColor} from "$/util";
 import {promises as fs} from "fs";
 import path from "path";
 
@@ -16,12 +16,12 @@ interface TranslationCacheManager {
 
 export async function readTranslationsCache(options: TranslateOptions): Promise<TranslationCacheManager> {
 
-    const baseLanguageCodeKey = options.baseLanguageCodePrefixWithDot ? `.${options.baseLanguageCode}` : options.baseLanguageCode;
+    const baseLanguageCodeKey = formatLanguageContainerDirectoryName(options.baseLanguageCode, options);
 
     const cachePath = path.resolve(
         process.env.PWD!,
         options.languagesDirectoryPath,
-        options.jsonCacheName
+        options.namesMapping!.jsonCache!
     );
 
     let content: any = '{}';

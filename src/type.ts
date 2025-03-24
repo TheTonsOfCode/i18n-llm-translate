@@ -1,13 +1,32 @@
+export type TranslateOptionsNamesMappingLanguagesCallback = (languageCode: string, options: TranslateOptions) => string;
+/**
+ * Parameters: {language}
+ * Default value: {language}
+ */
+export type TranslateOptionsNamesMappingLanguagesBasicConfig = {
+    base?: string;
+    targets?: string;
+};
+export type TranslateOptionsNamesMappingLanguages = TranslateOptionsNamesMappingLanguagesCallback | TranslateOptionsNamesMappingLanguagesBasicConfig;
+
+export interface TranslateOptionsNamesMapping {
+    languages?: TranslateOptionsNamesMappingLanguages;
+
+    /**
+     * Default: .translations-cache
+     */
+    jsonCache?: string;
+}
+
 export interface TranslateOptions {
     languagesDirectoryPath: string;
 
     baseLanguageCode: string;
-    baseLanguageCodePrefixWithDot: boolean;
-    targetLanguageCodes: string[]
+    targetLanguageCodes: string[];
 
-    jsonCacheName: string;
+    namesMapping?: TranslateOptionsNamesMapping;
 
-    applicationContextEntries: string[],
+    applicationContextEntries: string[];
 
     debug?: boolean;
 }
@@ -60,7 +79,5 @@ export interface TranslateNamespace {
 
     getMissingTranslations(): TranslateNamespaceMissingTranslations | undefined;
 }
-
-
 
 

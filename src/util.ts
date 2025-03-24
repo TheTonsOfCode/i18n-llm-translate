@@ -1,3 +1,17 @@
+import {TranslateOptions} from "$/type";
+
+export function formatLanguageContainerDirectoryName(languageCode: string, options: TranslateOptions): string {
+    if (!options.namesMapping) return languageCode;
+    if (!options.namesMapping.languages) return languageCode;
+    if (typeof options.namesMapping.languages === 'function') return options.namesMapping.languages(languageCode, options);
+    if (languageCode === options.baseLanguageCode) {
+        if (!options.namesMapping.languages.base) return languageCode;
+        return options.namesMapping.languages.base.replace('{language}', languageCode);
+    }
+    if (!options.namesMapping.languages.targets) return languageCode;
+    return options.namesMapping.languages.targets.replace('{language}', languageCode);
+}
+
 export function flattenObject(obj: any, parentKey: string = ''): Record<string, string> {
     let result: Record<string, string> = {};
 

@@ -2,21 +2,10 @@
 # TODO
 
 
+!!! error while there is no base language dir
+
+
 ### CLI ...
-
-
-### Instead of baseLanguageCodePrefixWithDot
-```json5
-{
-  namesMapping: {
-    // Both have by default: '{language}'
-    languageContainers: {
-      base: '.{language}',
-      translated: '{language}_generated'
-    }
-  }
-}
-```
 
 ### Consider naming
 'Engine' is pretty good as it can be LLM, or some provider like DeepL,Google

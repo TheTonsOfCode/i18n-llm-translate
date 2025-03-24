@@ -8,8 +8,10 @@ import { z } from "zod";
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
     // We filter out base language, as it is used only as reference
     options.targetLanguageCodes = options.targetLanguageCodes.filter(languageCode => languageCode !== options.baseLanguageCode);
-    // We operate only on json files
-    options.jsonCacheName = options.jsonCacheName.endsWith(".json") ? options.jsonCacheName : `${options.jsonCacheName}.json`
+    // We operate only on json cache
+    if (!options.namesMapping) options.namesMapping = {};
+    if (!options.namesMapping.jsonCache) options.namesMapping.jsonCache = '.translations-cache';
+    if (!options.namesMapping.jsonCache.endsWith(".json")) options.namesMapping.jsonCache = `${options.namesMapping.jsonCache}.json`;
     // Fix application context. Each entry is treated as separate sentence
     for (let i = 0; i < options.applicationContextEntries.length; i++) {
         let entry = options.applicationContextEntries[i].trim();
