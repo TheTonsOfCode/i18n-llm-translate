@@ -4,6 +4,8 @@
 
 !!! error while there is no base language dir
 
+!!! when changing in target format for eg. form lowercase to upper with cleanup, error appears
+
 
 ### CLI ...
 

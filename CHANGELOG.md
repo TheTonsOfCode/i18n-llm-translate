@@ -7,11 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-- cleanup
-- names mapping
-- json cache move to names mapping
-- dummy engine valueFormat parameters
-- apiKey checks
+## [1.2.0] - 2025-03-24
+
+### Added
+
+- Introduced the `namesMapping` section in the configuration, allowing customization of language directory names via the `languages` field.
+  - You can now rename the base language directory and target language directories.
+  - Supports modifiers:
+    - `{language}` – Placeholder for the language code.
+    - `{language!}` – Converts the language code to uppercase.
+    - `{language_}` – Converts the language code to lowercase.
+- Added a `cleanup` flag in the configuration to re-enable automatic clearing of language directories.
+
+### Changed
+
+- Moved the cache filename configuration to the `namesMapping` section.
+- Translation process no longer clears language directories by default.
+- Now validating that an `apiKey` is provided when creating engines.
+- The Dummy engine now supports a configurable format for generated dummy translations instead of a fixed prefix.
+
+### Removed
+
+- Removed `baseLanguageCodePrefixWithDot` from the configuration.
+
+---
 
 ## [1.1.2] - 2025-03-23
 
