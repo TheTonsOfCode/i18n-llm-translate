@@ -23,10 +23,12 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
 
     const cache = await readTranslationsCache(options);
 
-    // Remove files that are neither language directories nor cache file
-    await cleanLanguagesDirectory(options);
-    // Clean each language directory by removing files that are not namespace files from the base language directory
-    await cleanNamespaces(options, namespaces);
+    if (options.cleanup) {
+        // Remove files that are neither language directories nor cache file
+        await cleanLanguagesDirectory(options);
+        // Clean each language directory by removing files that are not namespace files from the base language directory
+        await cleanNamespaces(options, namespaces);
+    }
     const dirtyCache = cache.cleanCache(namespaces);
 
     // Fix cache structure so it matches all paths with base namespaces

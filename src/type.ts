@@ -28,6 +28,7 @@ export interface TranslateOptions {
 
     applicationContextEntries: string[];
 
+    cleanup?: boolean;
     debug?: boolean;
 }
 
