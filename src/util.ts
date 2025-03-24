@@ -6,10 +6,25 @@ export function formatLanguageContainerDirectoryName(languageCode: string, optio
     if (typeof options.namesMapping.languages === 'function') return options.namesMapping.languages(languageCode, options);
     if (languageCode === options.baseLanguageCode) {
         if (!options.namesMapping.languages.base) return languageCode;
-        return options.namesMapping.languages.base.replace('{language}', languageCode);
+        return formatLanguageDirectoryName(options.namesMapping.languages.base, languageCode);
     }
     if (!options.namesMapping.languages.targets) return languageCode;
-    return options.namesMapping.languages.targets.replace('{language}', languageCode);
+    return formatLanguageDirectoryName(options.namesMapping.languages.targets, languageCode);
+}
+
+function extractFirstBracedValue(str: string) {
+    const match = str.match(/\{(.*?)}/);
+    return match ? match[1] : null;
+}
+
+function formatLanguageDirectoryName(format: string, languageCode: string): string {
+    const variable = extractFirstBracedValue(format);
+    if (!variable) throw new Error(`Invalid format: "${format}". Expected a placeholder like "{language}", but none was found.`);
+    const tmp = variable.replace('language', '');
+    if (variable === tmp) throw new Error(`Invalid format: "${format}". Found placeholder "{${variable}}", but it does not contain "language".`);
+    if (tmp === '!') languageCode = languageCode.toUpperCase();
+    if (tmp === '_') languageCode = languageCode.toLowerCase();
+    return format.replace(`{${variable}}`, languageCode);
 }
 
 export function flattenObject(obj: any, parentKey: string = ''): Record<string, string> {

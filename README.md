@@ -1,5 +1,9 @@
 # i18n-llm-translate
 
+### Mapping Languages
+{language}
+{!language}
+{_language}
 
 ### Engines
 
