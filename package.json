@@ -1,6 +1,6 @@
 {
   "name": "i18n-llm-translate",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Automatically translates namespace-based JSON translation files across multiple languages from any source language",
   "main": "index.js",
   "scripts": {
