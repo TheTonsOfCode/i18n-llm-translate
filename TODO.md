@@ -9,13 +9,16 @@
 !!! when changing in target format for eg. form lowercase to upper with cleanup, error appears
 
 
-### Try enabling reasoning for LLMs and check quality of the output
 
 
-### Add counting total tokens of all translations requests to each model
-
+### Tests:
+- locale/ directories with dummy-engine
+- cache tests
+- openai engine tests
 
 ### CLI ...
+
+### Try enabling reasoning for LLMs and check quality of the output
 
 ### Consider naming
 'Engine' is pretty good as it can be LLM, or some provider like DeepL,Google
@@ -23,12 +26,6 @@
 maybe "provider"?
 
 ### Some logger? Instead of console logs...
-
-
-### Tests:
-- locale/ directories with dummy-engine 
-- cache tests
-- openai engine tests
 
 
 ### Application context move to engines instead of options.
@@ -55,8 +52,22 @@ Dirty on removed languages inside cache
 ### Support of other translations engines:
 - google translate
 - deepseek API / locally hosted deepseek
-- deepl
 
+### Add Counting of Total Tokens for All Translation Requests to Each Model
+- Add a flag to enable statistics tracking using a `.statistics.json` file with the following structure:  
+  This allows users to monitor total token consumption.
+- Token data should be saved in such a way that even if a translation request fails but the API fetch is successful,  
+  the `.statistics.json` file is still updated.
+```json
+{
+  "tokensUsed": {
+    "claude": {
+      "input": 12345,
+      "output": 4567
+    }
+  }
+}
+```
 
 ### Greek characters broken JSON.parse???
 
