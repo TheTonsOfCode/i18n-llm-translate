@@ -2,9 +2,17 @@
 # TODO
 
 
+!!! check configuration, when languagesDirectoryPath is undefined throw error at the beginning
+
 !!! error while there is no base language dir
 
 !!! when changing in target format for eg. form lowercase to upper with cleanup, error appears
+
+
+### Try enabling reasoning for LLMs and check quality of the output
+
+
+### Add counting total tokens of all translations requests to each model
 
 
 ### CLI ...

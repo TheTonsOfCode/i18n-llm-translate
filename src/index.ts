@@ -76,7 +76,7 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const engineResultSchema = generateTranslationsZodSchema(missed.targetLanguageTranslationsKeys);
 
             console.log(`Translation# Translating missed translations for namespace: "${namespace.jsonFileName}".`);
-            if (options.debug) console.log(`Translation# Missed translations: `, JSON.stringify(missed, null, 2));
+            if (options.debug) console.log(`Translation# Missed translations`) //: `, JSON.stringify(missed, null, 2));
             // `baseLanguageTranslations` contains merged missing translations, regardless of the language,
             // while avoiding duplicates. This reduces the required context, leading to lower token consumption.
             const translationsResults = await engine.translateMissed(missed, options);

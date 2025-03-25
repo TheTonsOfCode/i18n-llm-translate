@@ -25,14 +25,17 @@ interface OpenAIChunk {
     schema: z.ZodObject<any>;
 }
 
+type OpenAIModel =
+    | 'gpt-4o-mini'
+    | 'gpt-4o-2024-08-06';
+    // | 'gpt-3.5-turbo' // Does not support structured output???
+
+const DEFAULT_MODEL: OpenAIModel = 'gpt-4o-mini';
+
 export interface OpenAIConfig {
     apiKey: string;
 
-    model?:
-        'gpt-4o-mini' | // Default
-        'gpt-4o-2024-08-06' |
-        // 'gpt-3.5-turbo' | Does not support structured output???
-        (string & {});
+    model?: OpenAIModel | (string & {});
 
     /**
      * Max: 100
@@ -48,6 +51,8 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     if (!config.apiKey) {
         throw new Error('OpenAI > Missing apiKey');
     }
+
+    const model = config.model || DEFAULT_MODEL;
 
     const MAX_CHUNK_SIZE = Math.min(100, Math.max(5, config.chunkSize || 50));
 
@@ -155,7 +160,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
 
         async function fetchChunk(chunk: OpenAIChunk) {
             const response = await openai.beta.chat.completions.parse({
-                model: config.model || "gpt-4o-mini",
+                model,
                 response_format: zodResponseFormat(chunk.schema, "language_translations"),
                 messages: [
                     {role: 'system', content: systemContext},
@@ -232,7 +237,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     }
 
     return {
-        name: 'OpenAI',
+        name: `OpenAI (${model})`,
 
         async translate(
             translations: Record<string, any>,
