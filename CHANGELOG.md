@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2025-03-25
+
+- Added Claude translator
+- LLMs now display the model they are using in brackets before performing translations
+
+---
+
 ## [1.2.0] - 2025-03-24
 
 ### Added
