@@ -10,6 +10,8 @@
 
 
 
+!!! add zod checks to make sure that {{ variableName }} stayed consistent after translation 
+
 
 ### Tests:
 - locale/ directories with dummy-engine
