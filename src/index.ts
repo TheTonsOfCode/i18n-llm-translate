@@ -4,6 +4,7 @@ import {applyEngineTranslations, readTranslationsNamespaces} from "$/namespace";
 import {TranslateEngine, TranslateOptions} from "$/type";
 import {logWithColor} from "$/util";
 import { z } from "zod";
+import {createCacheTranslateEngine} from "$/engines/cache";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
     // We filter out base language, as it is used only as reference
@@ -65,32 +66,48 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
 
     // Find missing translations
     for (let namespace of namespaces) {
-        const missed = namespace.getMissingTranslations();
+        const cacheEngine = createCacheTranslateEngine(cache, namespace.jsonFileName);
+
+        let missed = namespace.getMissingTranslations();
 
         if (missed) {
             dirty = true;
+            console.log(namespace.jsonFileName, JSON.stringify(missed, null, 2));
 
-            // "Missed" translations are already structured according to their respective languages.
-            // Different languages may have varying missing translations,
-            // unlike differential translations based on the primary language.
-            const engineResultSchema = generateTranslationsZodSchema(missed.targetLanguageTranslationsKeys);
+            const translationsResults = await cacheEngine.translateMissed(missed, options);
 
-            console.log(`Translation# Translating missed translations for namespace: "${namespace.jsonFileName}".`);
-            if (options.debug) console.log(`Translation# Missed translations`) //: `, JSON.stringify(missed, null, 2));
-            // `baseLanguageTranslations` contains merged missing translations, regardless of the language,
-            // while avoiding duplicates. This reduces the required context, leading to lower token consumption.
-            const translationsResults = await engine.translateMissed(missed, options);
-
-            const engineCheck = engineResultSchema.safeParse(translationsResults);
-
-            if (!engineCheck.success) {
-                logWithColor('red', `Translation# Engine does not returned proper translation structure!`);
-                logWithColor('red', `Translation# Validation error:`, engineCheck.error.issues);
-                return;
-            }
-
-            applyEngineTranslations(namespace, translationsResults)
+            applyEngineTranslations(namespace, translationsResults);
+            // console.log(111, JSON.stringify(translationsResults, null, 2));
         }
+
+        missed = namespace.getMissingTranslations();
+
+        console.log(333, namespace.jsonFileName, JSON.stringify(missed, null, 2));
+
+        // if (missed) {
+        //     dirty = true;
+        //
+        //     // "Missed" translations are already structured according to their respective languages.
+        //     // Different languages may have varying missing translations,
+        //     // unlike differential translations based on the primary language.
+        //     const engineResultSchema = generateTranslationsZodSchema(missed.targetLanguageTranslationsKeys);
+        //
+        //     console.log(`Translation# Translating missed translations for namespace: "${namespace.jsonFileName}".`);
+        //     if (options.debug) console.log(`Translation# Missed translations`) //: `, JSON.stringify(missed, null, 2));
+        //     // `baseLanguageTranslations` contains merged missing translations, regardless of the language,
+        //     // while avoiding duplicates. This reduces the required context, leading to lower token consumption.
+        //     const translationsResults = await engine.translateMissed(missed, options);
+        //
+        //     const engineCheck = engineResultSchema.safeParse(translationsResults);
+        //
+        //     if (!engineCheck.success) {
+        //         logWithColor('red', `Translation# Engine does not returned proper translation structure!`);
+        //         logWithColor('red', `Translation# Validation error:`, engineCheck.error.issues);
+        //         return;
+        //     }
+        //
+        //     applyEngineTranslations(namespace, translationsResults)
+        // }
     }
 
     if (dirty || dirtyCache) {

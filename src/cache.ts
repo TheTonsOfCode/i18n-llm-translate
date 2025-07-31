@@ -3,7 +3,9 @@ import {formatLanguageContainerDirectoryName, logWithColor} from "$/util";
 import {promises as fs} from "fs";
 import path from "path";
 
-interface TranslationCacheManager {
+export interface TranslationCacheManager {
+
+    cache: any;
 
     cleanCache(namespaces: TranslateNamespace[]): boolean;
 
@@ -24,28 +26,29 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
         options.namesMapping!.jsonCache!
     );
 
-    let content: any = '{}';
+    let cache: any = '{}';
 
     try {
-        content = await fs.readFile(cachePath, 'utf-8');
+        cache = await fs.readFile(cachePath, 'utf-8');
     } catch (error) {
         console.warn(`Translation# Warning: "${cachePath}" not found. Initializing empty JSON.`);
     }
 
     try {
-        content = JSON.parse(content);
+        cache = JSON.parse(cache);
     } catch (error) {
         console.error(`Translation# Error reading "${cachePath}". File is not a proper JSON!`);
     }
 
     return {
+        cache,
         cleanCache(namespaces: TranslateNamespace[]): boolean {
             let dirty = false;
             const namespaceFiles: string[] = namespaces.map(n => n.jsonFileName);
-            for (let cachedFile in content) {
+            for (let cachedFile in cache) {
                 if (!namespaceFiles.includes(cachedFile)) {
                     logWithColor('yellow', `Translation# Warning: Namespace file "${cachedFile}" not found. Clearing it from cache`);
-                    delete content[cachedFile];
+                    delete cache[cachedFile];
                     dirty = true;
                 }
             }
@@ -110,9 +113,9 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
             }
 
             for (let namespace of namespaces) {
-                const cacheNamespace = content[namespace.jsonFileName] || {};
+                const cacheNamespace = cache[namespace.jsonFileName] || {};
 
-                content[namespace.jsonFileName] = walk(
+                cache[namespace.jsonFileName] = walk(
                     cacheNamespace,
                     deepCopy(namespace.baseLanguageTranslations),
                     deepCopy(namespace.targetLanguages)
@@ -121,7 +124,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
         },
 
         getBaseLanguageTranslationDifferences(namespace: TranslateNamespace): Record<string, any> | undefined {
-            const fileCache = content[namespace.jsonFileName];
+            const fileCache = cache[namespace.jsonFileName];
 
             if (!fileCache) return namespace.baseLanguageTranslations;
 
@@ -155,7 +158,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
         },
 
         async write() {
-            await fs.writeFile(cachePath, JSON.stringify(content, null, 4), 'utf-8');
+            await fs.writeFile(cachePath, JSON.stringify(cache, null, 4), 'utf-8');
             console.log(`Translation# Successfully wrote translations cache`);
         },
     }
