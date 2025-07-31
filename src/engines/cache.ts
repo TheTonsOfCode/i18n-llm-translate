@@ -34,17 +34,20 @@ export function createCacheTranslateEngine(cacheManager: TranslationCacheManager
             options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
 
-            const languages: any = {};
+            throw new Error('This engine should not be used here!')
 
-            for (let targetLanguageCode of options.targetLanguageCodes) {
-                languages[targetLanguageCode] = walkCache(
-                    targetLanguageCode,
-                    translations,
-                    cache
-                );
-            }
-
-            return languages;
+            //
+            // const languages: any = {};
+            //
+            // for (let targetLanguageCode of options.targetLanguageCodes) {
+            //     languages[targetLanguageCode] = walkCache(
+            //         targetLanguageCode,
+            //         translations,
+            //         cache
+            //     );
+            // }
+            //
+            // return languages;
         },
         translateMissed(
             {

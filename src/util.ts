@@ -1,4 +1,4 @@
-import {TranslateEngineTranslateResult, TranslateOptions} from "$/type";
+import { TranslateEngineTranslateResult, TranslateOptions } from "$/type";
 
 export function formatLanguageContainerDirectoryName(languageCode: string, options: TranslateOptions): string {
     if (!options.namesMapping) return languageCode;
@@ -81,8 +81,84 @@ export function logWithColor(color: 'red' | 'green' | 'yellow', firstMessage: st
     console.log(`${colorCode}%s\x1b[0m`, firstMessage, ...otherMessages);
 }
 
-export function clearNullsFromResult(result: TranslateEngineTranslateResult) {
-    function walk() {
+export function clearNullsFromResult(result: TranslateEngineTranslateResult): TranslateEngineTranslateResult {
+    function walk(obj: any): any {
+        if (obj === null || obj === undefined) {
+            return undefined;
+        }
 
+        if (typeof obj !== 'object' || Array.isArray(obj)) {
+            return obj;
+        }
+
+        const cleaned: any = {};
+        let hasValidKeys = false;
+
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const value = walk(obj[key]);
+
+                // Only add the key if the value is not null/undefined
+                if (value !== null && value !== undefined) {
+                    cleaned[key] = value;
+                    hasValidKeys = true;
+                }
+            }
+        }
+
+        // Return undefined if the object is empty after cleaning
+        return hasValidKeys ? cleaned : undefined;
     }
+
+    const cleanedResult: TranslateEngineTranslateResult = {};
+
+    for (const languageCode in result) {
+        if (result.hasOwnProperty(languageCode)) {
+            const cleanedTranslations = walk(result[languageCode]);
+
+            // Only include language if it has valid translations
+            if (cleanedTranslations !== undefined) {
+                cleanedResult[languageCode] = cleanedTranslations;
+            }
+        }
+    }
+
+    return cleanedResult;
+}
+
+export function countTranslatedKeys(result: TranslateEngineTranslateResult): number {
+    function countInObject(obj: any): number {
+        if (!obj || typeof obj !== 'object') {
+            return 0;
+        }
+
+        let count = 0;
+
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const value = obj[key];
+
+                if (typeof value === 'string') {
+                    // This is a translation key
+                    count++;
+                } else if (typeof value === 'object' && value !== null) {
+                    // This is a nested object, count recursively
+                    count += countInObject(value);
+                }
+            }
+        }
+
+        return count;
+    }
+
+    let totalCount = 0;
+
+    // Count translations across all languages
+    for (const languageCode in result) {
+        if (result.hasOwnProperty(languageCode)) {
+            totalCount += countInObject(result[languageCode]);
+        }
+    }
+
+    return totalCount;
 }
