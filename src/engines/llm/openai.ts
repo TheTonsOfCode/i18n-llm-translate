@@ -89,6 +89,9 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         timeout: TIMEOUT_MS
     });
 
+    // Global timeout synchronization
+    let globalTimeoutPromise: Promise<void> | null = null;
+
     async function sleep(ms: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -98,6 +101,11 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
 
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
+                // Wait for any ongoing global timeout before attempting
+                if (globalTimeoutPromise) {
+                    await globalTimeoutPromise;
+                }
+
                 return await operation();
             } catch (error) {
                 lastError = error as Error;
@@ -120,9 +128,20 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                         const waitTime = retryAfterMs ? parseInt(retryAfterMs) * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY : 1000; // Default 1s if no header
 
                         console.log(`OpenAI ${operationName} > Rate limit hit on attempt ${attempt}/${MAX_RETRIES}, waiting ${waitTime}ms before retry...`);
-                        await sleep(waitTime);
-                    } else {
+
+                        // Set global timeout promise so other chunks wait
+                        const sleepPromise = sleep(waitTime);
+                        globalTimeoutPromise = sleepPromise;
+                        await sleepPromise;
+                        globalTimeoutPromise = null;
+                    } else if (isTimeout) {
                         console.log(`OpenAI ${operationName} > Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
+
+                        // Set global timeout promise so other chunks wait
+                        const sleepPromise = sleep(2000); // 2 second delay for timeout
+                        globalTimeoutPromise = sleepPromise;
+                        await sleepPromise;
+                        globalTimeoutPromise = null;
                     }
                     continue;
                 }
