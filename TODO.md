@@ -52,7 +52,7 @@ Dirty on removed languages inside cache
 - yaml
 
 ### Support of other translations engines:
-- google translate
+- ✓ google translate
 - deepseek API / locally hosted deepseek
 
 ### Add Counting of Total Tokens for All Translation Requests to Each Model

@@ -7,6 +7,7 @@
     - maybe implement chunking
 - OpenAI is fastest LLM implementation here, with good context is like 99% on point
 - DeepL is like 70% on point
+- Google Translate provides good quality translations with wide language support
 
 ### Mapping Languages
 {language}
