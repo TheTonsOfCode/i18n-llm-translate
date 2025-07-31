@@ -4,10 +4,10 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions, TranslationsByLanguage
 } from "$/type";
-import {flattenObject, unflattenObject} from "$/util";
-import {OpenAI} from 'openai';
-import {zodResponseFormat} from "openai/helpers/zod";
-import {z} from "zod";
+import { flattenObject, unflattenObject } from "$/util";
+import { OpenAI } from 'openai';
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 
 function toLanguagesContext(baseLanguageCode: string, languages: string[]) {
     return `You are translating from language with code "${baseLanguageCode}" to the following language codes: "${languages.join(', ')}".`;
@@ -28,7 +28,7 @@ interface OpenAIChunk {
 type OpenAIModel =
     | 'gpt-4o-mini'
     | 'gpt-4o-2024-08-06';
-    // | 'gpt-3.5-turbo' // Does not support structured output???
+// | 'gpt-3.5-turbo' // Does not support structured output???
 
 const DEFAULT_MODEL: OpenAIModel = 'gpt-4o-mini';
 
@@ -43,6 +43,18 @@ export interface OpenAIConfig {
      * Default: 50
      */
     chunkSize?: number;
+
+    /**
+     * Request timeout in seconds
+     * Default: 15
+     */
+    timeoutSeconds?: number;
+
+    /**
+     * Maximum number of retries on timeout
+     * Default: 5
+     */
+    maxRetries?: number;
 }
 
 const DEBUG_CHUNKS = false;
@@ -55,8 +67,41 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     const model = config.model || DEFAULT_MODEL;
 
     const MAX_CHUNK_SIZE = Math.min(100, Math.max(5, config.chunkSize || 50));
+    const TIMEOUT_MS = (config.timeoutSeconds || 15) * 1000;
+    const MAX_RETRIES = config.maxRetries || 5;
 
-    const openai = new OpenAI({apiKey: config.apiKey});
+    const openai = new OpenAI({
+        apiKey: config.apiKey,
+        timeout: TIMEOUT_MS
+    });
+
+    async function withRetry<T>(operation: () => Promise<T>, operationName: string): Promise<T> {
+        let lastError: Error;
+
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                return await operation();
+            } catch (error) {
+                lastError = error as Error;
+
+                const isTimeout = error instanceof Error && (
+                    error.message.includes('timeout') ||
+                    error.message.includes('ETIMEDOUT') ||
+                    error.name === 'TimeoutError'
+                );
+
+                if (isTimeout && attempt < MAX_RETRIES) {
+                    console.log(`OpenAI ${operationName} > Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
+                    continue;
+                }
+
+                // If it's not a timeout error or we've exhausted retries, throw the error
+                throw error;
+            }
+        }
+
+        throw lastError!;
+    }
 
     /**
      * OpenAI imposes limitations on structured outputs:
@@ -159,21 +204,23 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         ].join(' ');
 
         async function fetchChunk(chunk: OpenAIChunk) {
-            const response = await openai.beta.chat.completions.parse({
-                model,
-                response_format: zodResponseFormat(chunk.schema, "language_translations"),
-                messages: [
-                    {role: 'system', content: systemContext},
-                    {role: 'user', content: JSON.stringify(chunk.baseTranslations)}
-                ]
-            });
+            return await withRetry(async () => {
+                const response = await openai.beta.chat.completions.parse({
+                    model,
+                    response_format: zodResponseFormat(chunk.schema, "language_translations"),
+                    messages: [
+                        { role: 'system', content: systemContext },
+                        { role: 'user', content: JSON.stringify(chunk.baseTranslations) }
+                    ]
+                });
 
-            const translatedChunk = response.choices[0].message.parsed;
-            if (!translatedChunk) {
-                throw new Error("Received null translatedChunk from API.");
-            }
+                const translatedChunk = response.choices[0].message.parsed;
+                if (!translatedChunk) {
+                    throw new Error("Received null translatedChunk from API.");
+                }
 
-            return translatedChunk;
+                return translatedChunk;
+            }, 'translate');
         }
 
         const mergedFlat: any = {};
