@@ -61,6 +61,12 @@ export interface OpenAIConfig {
      * Default: 4
      */
     rateLimitRetryMultiplier?: number;
+
+    /**
+     * Extra delay for retry-after-ms header on rate limit errors
+     * Default: 1200
+     */
+    rateLimitRetryExtraDelay?: number;
 }
 
 const DEBUG_CHUNKS = false;
@@ -76,6 +82,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     const TIMEOUT_MS = (config.timeoutSeconds || 25) * 1000;
     const MAX_RETRIES = config.maxRetries || 10;
     const RATE_LIMIT_MULTIPLIER = config.rateLimitRetryMultiplier || 4;
+    const RATE_LIMIT_EXTRA_DELAY = config.rateLimitRetryExtraDelay || 1200;
 
     const openai = new OpenAI({
         apiKey: config.apiKey,
@@ -98,7 +105,9 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                 const isTimeout = error instanceof Error && (
                     error.message.includes('timeout') ||
                     error.message.includes('ETIMEDOUT') ||
-                    error.name === 'TimeoutError'
+                    error.name === 'TimeoutError' ||
+                    error.name === 'APIConnectionTimeoutError' ||
+                    error.constructor.name === 'APIConnectionTimeoutError'
                 );
 
                 // Check if it's a rate limit error (429)
@@ -108,7 +117,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                     if (isRateLimit) {
                         // Get retry-after-ms from headers and multiply by configured multiplier
                         const retryAfterMs = (error as any)?.headers?.['retry-after-ms'];
-                        const waitTime = retryAfterMs ? parseInt(retryAfterMs) * RATE_LIMIT_MULTIPLIER : 1000; // Default 1s if no header
+                        const waitTime = retryAfterMs ? parseInt(retryAfterMs) * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY : 1000; // Default 1s if no header
 
                         console.log(`OpenAI ${operationName} > Rate limit hit on attempt ${attempt}/${MAX_RETRIES}, waiting ${waitTime}ms before retry...`);
                         await sleep(waitTime);
