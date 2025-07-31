@@ -46,15 +46,21 @@ export interface OpenAIConfig {
 
     /**
      * Request timeout in seconds
-     * Default: 15
+     * Default: 25
      */
     timeoutSeconds?: number;
 
     /**
      * Maximum number of retries on timeout
-     * Default: 5
+     * Default: 10
      */
     maxRetries?: number;
+
+    /**
+     * Multiplier for retry-after-ms header on rate limit errors
+     * Default: 4
+     */
+    rateLimitRetryMultiplier?: number;
 }
 
 const DEBUG_CHUNKS = false;
@@ -67,13 +73,18 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     const model = config.model || DEFAULT_MODEL;
 
     const MAX_CHUNK_SIZE = Math.min(100, Math.max(5, config.chunkSize || 50));
-    const TIMEOUT_MS = (config.timeoutSeconds || 15) * 1000;
-    const MAX_RETRIES = config.maxRetries || 5;
+    const TIMEOUT_MS = (config.timeoutSeconds || 25) * 1000;
+    const MAX_RETRIES = config.maxRetries || 10;
+    const RATE_LIMIT_MULTIPLIER = config.rateLimitRetryMultiplier || 4;
 
     const openai = new OpenAI({
         apiKey: config.apiKey,
         timeout: TIMEOUT_MS
     });
+
+    async function sleep(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     async function withRetry<T>(operation: () => Promise<T>, operationName: string): Promise<T> {
         let lastError: Error;
@@ -90,12 +101,24 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                     error.name === 'TimeoutError'
                 );
 
-                if (isTimeout && attempt < MAX_RETRIES) {
-                    console.log(`OpenAI ${operationName} > Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
+                // Check if it's a rate limit error (429)
+                const isRateLimit = (error as any)?.status === 429;
+
+                if ((isTimeout || isRateLimit) && attempt < MAX_RETRIES) {
+                    if (isRateLimit) {
+                        // Get retry-after-ms from headers and multiply by configured multiplier
+                        const retryAfterMs = (error as any)?.headers?.['retry-after-ms'];
+                        const waitTime = retryAfterMs ? parseInt(retryAfterMs) * RATE_LIMIT_MULTIPLIER : 1000; // Default 1s if no header
+
+                        console.log(`OpenAI ${operationName} > Rate limit hit on attempt ${attempt}/${MAX_RETRIES}, waiting ${waitTime}ms before retry...`);
+                        await sleep(waitTime);
+                    } else {
+                        console.log(`OpenAI ${operationName} > Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
+                    }
                     continue;
                 }
 
-                // If it's not a timeout error or we've exhausted retries, throw the error
+                // If it's not a retryable error or we've exhausted retries, throw the error
                 throw error;
             }
         }
