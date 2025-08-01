@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import { translate } from '$/index'
 import { TranslateEngine, TranslateOptions, TranslateNamespace } from '$/type'
 import { extractVariablesFromString, createVariableConsistencySchema, createObjectVariableConsistencySchema } from '$/validation'
+import {createMockLogger} from "../mock";
 
 // Mock dependencies
 vi.mock('$/cache')
@@ -283,20 +284,7 @@ describe('Variable Consistency Validation', () => {
       const { readTranslationsNamespaces } = await import('$/namespace')
       const { readTranslationsCache } = await import('$/cache')
       
-      const mockLogger = {
-        log: vi.fn(),
-        info: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-        success: vi.fn(),
-        debug: vi.fn(),
-        verbose: vi.fn(),
-        engineLog: vi.fn(),
-        engineDebug: vi.fn(),
-        engineVerbose: vi.fn(),
-        setDebug: vi.fn(),
-        setVerbose: vi.fn()
-      }
+      const mockLogger = createMockLogger();
       
       options.logger = mockLogger
       
