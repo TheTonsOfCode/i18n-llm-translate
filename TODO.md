@@ -2,10 +2,6 @@
 # TODO
 
 
-!!! check configuration, when languagesDirectoryPath is undefined throw error at the beginning
-
-!!! error while there is no base language dir
-
 !!! when changing in target format for eg. form lowercase to upper with cleanup, error appears
 
 
@@ -27,10 +23,6 @@
 
 ### Try enabling reasoning for LLMs and check quality of the output
 
-### Consider naming
-'Engine' is pretty good as it can be LLM, or some provider like DeepL,Google
-
-maybe "provider"?
 
 ### Some logger? Instead of console logs...
 

@@ -6,17 +6,28 @@ import { clearNullsFromResult, countTranslatedKeys } from "$/util";
 import { defaultLogger } from "$/logger";
 import { z } from "zod";
 import { createCacheTranslateEngine } from "$/engines/cache";
+import { validateTranslateOptions } from "$/validation";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
     const startTime = Date.now();
-    
+
     // Setup logger
     const logger = options.logger || defaultLogger;
     if (options.debug !== undefined) logger.setDebug?.(options.debug);
     if (options.verbose !== undefined) logger.setVerbose?.(options.verbose);
 
+    // Validate configuration before filtering
+    validateTranslateOptions(options);
+    
     // We filter out base language, as it is used only as reference
     options.targetLanguageCodes = options.targetLanguageCodes.filter(languageCode => languageCode !== options.baseLanguageCode);
+    
+    // If no target languages remain after filtering, return early
+    if (options.targetLanguageCodes.length === 0) {
+        logger.info('No target languages to translate after filtering out base language');
+        return;
+    }
+    
     // We operate only on json cache
     if (!options.namesMapping) options.namesMapping = {};
     if (!options.namesMapping.jsonCache) options.namesMapping.jsonCache = '.translations-cache';

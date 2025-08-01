@@ -8,7 +8,6 @@ vi.mock('$/cleaner')
 vi.mock('$/namespace')
 vi.mock('$/util')
 vi.mock('$/engines/cache')
-vi.mock('zod')
 
 const mockEngine = {
   name: 'test-engine',
@@ -266,16 +265,9 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces, applyEngineTranslations } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { z } = await import('zod')
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ success: true })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
     mockEngine.translate.mockResolvedValue({ pl: { test: 'Test PL' }, de: { test: 'Test DE' } })
 
@@ -298,7 +290,6 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { z } = await import('zod')
     
     const mockLogger = {
       log: vi.fn(),
@@ -319,15 +310,6 @@ describe('translate function', () => {
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ 
-        success: false, 
-        error: { issues: ['validation error'] } 
-      })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
     mockEngine.translate.mockResolvedValue({ invalid: 'result' })
 
@@ -335,7 +317,7 @@ describe('translate function', () => {
 
     expect(mockLogger.error).toHaveBeenCalledWith('Engine does not returned proper translation structure!')
     expect(mockLogger.debug).toHaveBeenCalledWith('Base differences:', { test: 'Test' })
-    expect(mockLogger.error).toHaveBeenCalledWith('Validation error:', ['validation error'])
+    expect(mockLogger.error).toHaveBeenCalledWith('Validation error:', expect.any(Array))
   })
 
   it('should process missing translations from cache', async () => {
@@ -400,19 +382,12 @@ describe('translate function', () => {
     const { readTranslationsCache } = await import('$/cache')
     const { clearNullsFromResult, countTranslatedKeys } = await import('$/util')
     const { createCacheTranslateEngine } = await import('$/engines/cache')
-    const { z } = await import('zod')
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
     vi.mocked(createCacheTranslateEngine).mockReturnValue(mockCacheEngine as any)
     vi.mocked(clearNullsFromResult).mockReturnValue({})
     vi.mocked(countTranslatedKeys).mockReturnValue(0)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ success: true })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
     mockEngine.translateMissed.mockResolvedValue({ pl: { stillMissing: 'Still Missing PL' } })
 
@@ -450,7 +425,6 @@ describe('translate function', () => {
     const { readTranslationsCache } = await import('$/cache')
     const { clearNullsFromResult, countTranslatedKeys } = await import('$/util')
     const { createCacheTranslateEngine } = await import('$/engines/cache')
-    const { z } = await import('zod')
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
@@ -474,22 +448,13 @@ describe('translate function', () => {
     vi.mocked(createCacheTranslateEngine).mockReturnValue(mockCacheEngine as any)
     vi.mocked(clearNullsFromResult).mockReturnValue({})
     vi.mocked(countTranslatedKeys).mockReturnValue(0)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ 
-        success: false, 
-        error: { issues: ['missed validation error'] } 
-      })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
     mockEngine.translateMissed.mockResolvedValue({ invalid: 'result' })
 
     await translate(mockEngine, options)
 
     expect(mockLogger.error).toHaveBeenCalledWith('Engine does not returned proper translation structure!')
-    expect(mockLogger.error).toHaveBeenCalledWith('Validation error:', ['missed validation error'])
+    expect(mockLogger.error).toHaveBeenCalledWith('Validation error:', expect.any(Array))
   })
 
   it('should log cache loaded count when greater than 0', async () => {
@@ -542,11 +507,16 @@ describe('translate function', () => {
     }
 
     const mockNamespace = createMockNamespace('test.json', true)
-    const mockCache = createMockCache(false, true)
+    const mockCache = {
+      cache: {},
+      cleanCache: vi.fn().mockReturnValue(false),
+      syncCacheWithNamespaces: vi.fn(),
+      write: vi.fn().mockResolvedValue(undefined),
+      getBaseLanguageTranslationDifferences: vi.fn().mockReturnValue({ test: 'Test' })
+    }
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { z } = await import('zod')
     
     const mockLogger = {
       log: vi.fn(),
@@ -567,14 +537,8 @@ describe('translate function', () => {
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ success: true })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
-    mockEngine.translate.mockResolvedValue({ pl: { test: 'Test PL' } })
+    mockEngine.translate.mockResolvedValue({ pl: { test: 'Test PL' }, de: { test: 'Test DE' } })
 
     await translate(mockEngine, options)
 
@@ -692,19 +656,12 @@ describe('translate function', () => {
     const { readTranslationsCache } = await import('$/cache')
     const { clearNullsFromResult, countTranslatedKeys } = await import('$/util')
     const { createCacheTranslateEngine } = await import('$/engines/cache')
-    const { z } = await import('zod')
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
     vi.mocked(createCacheTranslateEngine).mockReturnValue(mockCacheEngine as any)
     vi.mocked(clearNullsFromResult).mockReturnValue({})
     vi.mocked(countTranslatedKeys).mockReturnValue(0)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ success: true })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
     mockEngine.translateMissed.mockResolvedValue({ pl: { stillMissing: 'Still Missing PL' } })
 
@@ -734,12 +691,6 @@ describe('translate function', () => {
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace1, mockNamespace2])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
-    
-    const mockZodObject = {
-      safeParse: vi.fn().mockReturnValue({ success: true })
-    }
-    vi.mocked(z.object).mockReturnValue(mockZodObject as any)
-    vi.mocked(z.string).mockReturnValue({} as any)
 
     mockEngine.translate.mockResolvedValue({ pl: { test: 'Test PL' }, de: { test: 'Test DE' } })
 
