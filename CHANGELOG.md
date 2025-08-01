@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.7.0] - 2025-08-XX
+## [2.0.0] - 2025-08-XX
+
+### Breaking
+
+- "translate" function moved from index.ts to translate.ts
+
+### Added
 
 - Added variable consistency validation for {{ variableName }} patterns in translations
 - Aggregating namespace message "Initializing empty JSON"
 - Default logger name as "🌐Translate"
 - Translate function, options parameter validation
-- Translate tests as multiple test files
+- Translate tests as multiple test files"
 
 
 ---

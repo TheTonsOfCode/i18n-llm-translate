@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { translate } from '$/index'
+import { translate } from '$/translate'
 import { TranslateOptions } from '$/type'
 import { createMockLogger } from "../mock"
 import { mockEngine, createMockNamespace, createMockCache, setupTestEnvironment } from './shared-mocks'

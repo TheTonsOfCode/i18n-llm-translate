@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
-import { translate } from '$/index'
+import { translate } from '$/translate'
 import { TranslateEngine, TranslateOptions, TranslateNamespace } from '$/type'
 import { extractVariablesFromString, createVariableConsistencySchema, createObjectVariableConsistencySchema } from '$/validation'
 import {createMockLogger} from "../mock";
