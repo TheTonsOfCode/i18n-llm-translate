@@ -5,6 +5,7 @@ import {
     TranslateOptions, TranslationsByLanguage
 } from "$/type";
 import { flattenObject, unflattenObject } from "$/util";
+import { defaultLogger } from "$/logger";
 import { OpenAI } from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -270,6 +271,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     }
 
     async function fetchTranslations(chunks: OpenAIChunk[], options: TranslateOptions) {
+        const logger = options.logger || defaultLogger;
         const systemContext = [
             ...ABSOLUTE_CONTEXT,
 
@@ -304,21 +306,19 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
 
         const translatedChunks = await Promise.all(
             chunks.map(async (chunk: OpenAIChunk, i: number) => {
-                if (options.debug && chunks.length > 1) {
-                    console.log(`OpenAI translate > Fetching chunk ${i + 1}...`);
+                if (chunks.length > 1) {
+                    logger.engineDebug('OpenAI', `Fetching chunk ${i + 1}/${chunks.length}`);
                 }
                 let result = await fetchChunk(chunk);
 
                 fetchedCount++;
 
-                if (options.debug) {
-                    console.log(`OpenAI translate > Fetched chunk ${i + 1} (${fetchedCount}/${chunks.length})`);
-                }
+                logger.engineVerbose('OpenAI', `Fetched chunk ${i + 1} (${fetchedCount}/${chunks.length})`);
                 return result;
             })
         );
 
-        if (options.debug) console.log(`OpenAI translate > Finished fetching all chunks.`);
+        logger.engineDebug('OpenAI', `Finished fetching all chunks`);
 
         for (const translatedChunk of translatedChunks) {
             for (const languageCode in translatedChunk) {

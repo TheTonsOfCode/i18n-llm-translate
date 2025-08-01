@@ -2,11 +2,17 @@ import { readTranslationsCache } from "$/cache";
 import { cleanLanguagesDirectory, cleanNamespaces } from "$/cleaner";
 import { applyEngineTranslations, readTranslationsNamespaces } from "$/namespace";
 import { TranslateEngine, TranslateOptions } from "$/type";
-import { clearNullsFromResult, countTranslatedKeys, logWithColor } from "$/util";
+import { clearNullsFromResult, countTranslatedKeys } from "$/util";
+import { defaultLogger } from "$/logger";
 import { z } from "zod";
 import { createCacheTranslateEngine } from "$/engines/cache";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
+    // Setup logger
+    const logger = options.logger || defaultLogger;
+    if (options.debug !== undefined) logger.setDebug?.(options.debug);
+    if (options.verbose !== undefined) logger.setVerbose?.(options.verbose);
+
     // We filter out base language, as it is used only as reference
     options.targetLanguageCodes = options.targetLanguageCodes.filter(languageCode => languageCode !== options.baseLanguageCode);
     // We operate only on json cache
@@ -35,7 +41,7 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     // Fix cache structure so it matches all paths with base namespaces
     cache.syncCacheWithNamespaces(namespaces, false);
 
-    console.log(`Translation# Using engine: "${engine.name}"`);
+    logger.info(`Using engine: "${engine.name}"`);
 
     let dirty = false;
     let totalCacheLoadedCount = 0;
@@ -49,15 +55,15 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const baseDifferencesSchema = generateTranslationsZodSchema(baseDifferences);
             const engineResultSchema = generateLanguagesTranslateReturnZodSchema(options.targetLanguageCodes, baseDifferencesSchema);
 
-            console.log(`Translation# Translating base differences for namespace: "${namespace.jsonFileName}".`);
+            logger.info(`Translating base differences for namespace: "${namespace.jsonFileName}"`);
             const translationsResults = await engine.translate(baseDifferences, options);
 
             const engineCheck = engineResultSchema.safeParse(translationsResults);
 
             if (!engineCheck.success) {
-                logWithColor('red', `Translation# Engine does not returned proper translation structure!`);
-                logWithColor('red', `Translation# Base differences:`, baseDifferences);
-                logWithColor('red', `Translation# Validation error:`, engineCheck.error.issues);
+                logger.error(`Engine does not returned proper translation structure!`);
+                logger.debug(`Base differences:`, baseDifferences);
+                logger.error(`Validation error:`, engineCheck.error.issues);
                 return;
             }
 
@@ -96,8 +102,8 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             // unlike differential translations based on the primary language.
             const engineResultSchema = generateTranslationsZodSchema(missed.targetLanguageTranslationsKeys);
 
-            console.log(`Translation# Translating missed translations for namespace: "${namespace.jsonFileName}".`);
-            if (options.debug) console.log(`Translation# Missed translations`) //: `, JSON.stringify(missed, null, 2));
+            logger.info(`Translating missed translations for namespace: "${namespace.jsonFileName}"`);
+            logger.debug(`Missed translations structure prepared`);
             // `baseLanguageTranslations` contains merged missing translations, regardless of the language,
             // while avoiding duplicates. This reduces the required context, leading to lower token consumption.
             const translationsResults = await engine.translateMissed(missed, options);
@@ -105,8 +111,8 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const engineCheck = engineResultSchema.safeParse(translationsResults);
 
             if (!engineCheck.success) {
-                logWithColor('red', `Translation# Engine does not returned proper translation structure!`);
-                logWithColor('red', `Translation# Validation error:`, engineCheck.error.issues);
+                logger.error(`Engine does not returned proper translation structure!`);
+                logger.error(`Validation error:`, engineCheck.error.issues);
                 return;
             }
 
@@ -115,7 +121,7 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     }
 
     if (totalCacheLoadedCount > 0) {
-        console.log(`Translation# Total translations loaded from cache: ${totalCacheLoadedCount}`);
+        logger.info(`Total translations loaded from cache: ${totalCacheLoadedCount}`);
     }
 
     if (dirty || dirtyCache) {
@@ -130,9 +136,9 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             await namespace.write();
         }
 
-        logWithColor('green', `Translation# Translated and saved successfully`);
+        logger.success(`Translated and saved successfully`);
     } else {
-        logWithColor('green', `Translation# No changes detected.`);
+        logger.success(`No changes detected`);
     }
 }
 

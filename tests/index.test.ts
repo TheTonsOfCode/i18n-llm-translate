@@ -298,8 +298,24 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { logWithColor } = await import('$/util')
     const { z } = await import('zod')
+    
+    const mockLogger = {
+      log: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      success: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+      engineLog: vi.fn(),
+      engineDebug: vi.fn(),
+      engineVerbose: vi.fn(),
+      setDebug: vi.fn(),
+      setVerbose: vi.fn()
+    }
+    
+    options.logger = mockLogger
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
@@ -317,9 +333,9 @@ describe('translate function', () => {
 
     await translate(mockEngine, options)
 
-    expect(logWithColor).toHaveBeenCalledWith('red', 'Translation# Engine does not returned proper translation structure!')
-    expect(logWithColor).toHaveBeenCalledWith('red', 'Translation# Base differences:', { test: 'Test' })
-    expect(logWithColor).toHaveBeenCalledWith('red', 'Translation# Validation error:', ['validation error'])
+    expect(mockLogger.error).toHaveBeenCalledWith('Engine does not returned proper translation structure!')
+    expect(mockLogger.debug).toHaveBeenCalledWith('Base differences:', { test: 'Test' })
+    expect(mockLogger.error).toHaveBeenCalledWith('Validation error:', ['validation error'])
   })
 
   it('should process missing translations from cache', async () => {
@@ -432,12 +448,29 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { clearNullsFromResult, countTranslatedKeys, logWithColor } = await import('$/util')
+    const { clearNullsFromResult, countTranslatedKeys } = await import('$/util')
     const { createCacheTranslateEngine } = await import('$/engines/cache')
     const { z } = await import('zod')
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
+    const mockLogger = {
+      log: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      success: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+      engineLog: vi.fn(),
+      engineDebug: vi.fn(),
+      engineVerbose: vi.fn(),
+      setDebug: vi.fn(),
+      setVerbose: vi.fn()
+    }
+    
+    options.logger = mockLogger
+    
     vi.mocked(createCacheTranslateEngine).mockReturnValue(mockCacheEngine as any)
     vi.mocked(clearNullsFromResult).mockReturnValue({})
     vi.mocked(countTranslatedKeys).mockReturnValue(0)
@@ -455,8 +488,8 @@ describe('translate function', () => {
 
     await translate(mockEngine, options)
 
-    expect(logWithColor).toHaveBeenCalledWith('red', 'Translation# Engine does not returned proper translation structure!')
-    expect(logWithColor).toHaveBeenCalledWith('red', 'Translation# Validation error:', ['missed validation error'])
+    expect(mockLogger.error).toHaveBeenCalledWith('Engine does not returned proper translation structure!')
+    expect(mockLogger.error).toHaveBeenCalledWith('Validation error:', ['missed validation error'])
   })
 
   it('should log cache loaded count when greater than 0', async () => {
@@ -494,7 +527,10 @@ describe('translate function', () => {
 
     await translate(mockEngine, options)
 
-    expect(console.log).toHaveBeenCalledWith('Translation# Total translations loaded from cache: 5')
+    // The logger should be called with the cache count message
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Total translations loaded from cache: 5')
+    )
   })
 
   it('should write cache and namespaces when dirty', async () => {
@@ -510,8 +546,24 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { logWithColor } = await import('$/util')
     const { z } = await import('zod')
+    
+    const mockLogger = {
+      log: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      success: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+      engineLog: vi.fn(),
+      engineDebug: vi.fn(),
+      engineVerbose: vi.fn(),
+      setDebug: vi.fn(),
+      setVerbose: vi.fn()
+    }
+    
+    options.logger = mockLogger
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
@@ -529,7 +581,7 @@ describe('translate function', () => {
     expect(mockCache.syncCacheWithNamespaces).toHaveBeenCalledWith([mockNamespace], true)
     expect(mockCache.write).toHaveBeenCalled()
     expect(mockNamespace.write).toHaveBeenCalled()
-    expect(logWithColor).toHaveBeenCalledWith('green', 'Translation# Translated and saved successfully')
+    expect(mockLogger.success).toHaveBeenCalledWith('Translated and saved successfully')
   })
 
   it('should write cache when dirtyCache is true', async () => {
@@ -545,7 +597,23 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { logWithColor } = await import('$/util')
+    
+    const mockLogger = {
+      log: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      success: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+      engineLog: vi.fn(),
+      engineDebug: vi.fn(),
+      engineVerbose: vi.fn(),
+      setDebug: vi.fn(),
+      setVerbose: vi.fn()
+    }
+    
+    options.logger = mockLogger
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
@@ -553,7 +621,7 @@ describe('translate function', () => {
     await translate(mockEngine, options)
 
     expect(mockCache.write).toHaveBeenCalled()
-    expect(logWithColor).toHaveBeenCalledWith('green', 'Translation# No changes detected.')
+    expect(mockLogger.success).toHaveBeenCalledWith('No changes detected')
   })
 
   it('should log no changes when not dirty', async () => {
@@ -569,14 +637,30 @@ describe('translate function', () => {
     
     const { readTranslationsNamespaces } = await import('$/namespace')
     const { readTranslationsCache } = await import('$/cache')
-    const { logWithColor } = await import('$/util')
+    
+    const mockLogger = {
+      log: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      success: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+      engineLog: vi.fn(),
+      engineDebug: vi.fn(),
+      engineVerbose: vi.fn(),
+      setDebug: vi.fn(),
+      setVerbose: vi.fn()
+    }
+    
+    options.logger = mockLogger
     
     vi.mocked(readTranslationsNamespaces).mockResolvedValue([mockNamespace])
     vi.mocked(readTranslationsCache).mockResolvedValue(mockCache)
 
     await translate(mockEngine, options)
 
-    expect(logWithColor).toHaveBeenCalledWith('green', 'Translation# No changes detected.')
+    expect(mockLogger.success).toHaveBeenCalledWith('No changes detected')
   })
 
   it('should handle debug mode for missed translations', async () => {
@@ -626,7 +710,10 @@ describe('translate function', () => {
 
     await translate(mockEngine, options)
 
-    expect(console.log).toHaveBeenCalledWith('Translation# Missed translations')
+    // The logger should be called with debug message about missed translations
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Missed translations structure prepared')
+    )
   })
 
   it('should handle multiple namespaces', async () => {

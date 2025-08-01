@@ -4,8 +4,7 @@ import {
   unflattenObject,
   formatLanguageContainerDirectoryName,
   clearNullsFromResult,
-  countTranslatedKeys,
-  logWithColor
+  countTranslatedKeys
 } from '$/util'
 import { TranslateOptions, TranslateEngineTranslateResult } from '$/type'
 
@@ -230,62 +229,6 @@ describe('Util functions', () => {
       }
 
       expect(countTranslatedKeys(input)).toBe(1)
-    })
-  })
-
-  describe('logWithColor', () => {
-    it('should log with red color', () => {
-      logWithColor('red', 'Error message', 'additional', 'args')
-      
-      expect(console.log).toHaveBeenCalledWith(
-        '\x1b[31m%s\x1b[0m',
-        'Error message',
-        'additional',
-        'args'
-      )
-    })
-
-    it('should log with green color', () => {
-      logWithColor('green', 'Success message')
-      
-      expect(console.log).toHaveBeenCalledWith(
-        '\x1b[32m%s\x1b[0m',
-        'Success message'
-      )
-    })
-
-    it('should log with yellow color', () => {
-      logWithColor('yellow', 'Warning message')
-      
-      expect(console.log).toHaveBeenCalledWith(
-        '\x1b[33m%s\x1b[0m',
-        'Warning message'
-      )
-    })
-
-    it('should handle invalid color with reset code', () => {
-      // @ts-expect-error Testing invalid color
-      logWithColor('invalid', 'Test message')
-      
-      expect(console.log).toHaveBeenCalledWith(
-        '\x1b[0m%s\x1b[0m',
-        'Test message'
-      )
-    })
-
-    it('should handle multiple additional messages', () => {
-      const obj = { key: 'value' }
-      const arr = [1, 2, 3]
-      
-      logWithColor('red', 'Main message', obj, arr, 'string')
-      
-      expect(console.log).toHaveBeenCalledWith(
-        '\x1b[31m%s\x1b[0m',
-        'Main message',
-        obj,
-        arr,
-        'string'
-      )
     })
   })
 

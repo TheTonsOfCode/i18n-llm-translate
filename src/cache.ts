@@ -1,5 +1,6 @@
 import {TranslateNamespace, TranslateOptions} from "$/type";
-import {formatLanguageContainerDirectoryName, logWithColor} from "$/util";
+import {formatLanguageContainerDirectoryName} from "$/util";
+import {defaultLogger} from "$/logger";
 import {promises as fs} from "fs";
 import path from "path";
 
@@ -17,6 +18,7 @@ export interface TranslationCacheManager {
 }
 
 export async function readTranslationsCache(options: TranslateOptions): Promise<TranslationCacheManager> {
+    const logger = options.logger || defaultLogger;
 
     const baseLanguageCodeKey = formatLanguageContainerDirectoryName(options.baseLanguageCode, options);
 
@@ -31,13 +33,13 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
     try {
         cache = await fs.readFile(cachePath, 'utf-8');
     } catch {
-        console.warn(`Translation# Warning: "${cachePath}" not found. Initializing empty JSON.`);
+        logger.warn(`"${cachePath}" not found. Initializing empty JSON.`);
     }
 
     try {
         cache = JSON.parse(cache);
     } catch {
-        console.error(`Translation# Error reading "${cachePath}". File is not a proper JSON!`);
+        logger.error(`Error reading "${cachePath}". File is not a proper JSON!`);
     }
 
     return {
@@ -47,7 +49,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
             const namespaceFiles: string[] = namespaces.map(n => n.jsonFileName);
             for (let cachedFile in cache) {
                 if (!namespaceFiles.includes(cachedFile)) {
-                    logWithColor('yellow', `Translation# Warning: Namespace file "${cachedFile}" not found. Clearing it from cache`);
+                    logger.warn(`Namespace file "${cachedFile}" not found. Clearing it from cache`);
                     delete cache[cachedFile];
                     dirty = true;
                 }
@@ -71,7 +73,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
                     }
 
                     delete cache[cacheKey];
-                    console.log(`Translation# Cache# Removed unknown base path key: "${cacheKey}"`);
+                    logger.verbose(`Cache: Removed unknown base path key: "${cacheKey}"`);
                 }
 
                 for (let baseKey in baseTranslations) {
@@ -85,7 +87,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
                         for (let languageCode of Object.keys(cacheValue)) {
                             if (languageCode !== baseLanguageCodeKey && !options.targetLanguageCodes.includes(languageCode)) {
                                 delete cacheValue[languageCode];
-                                console.log(`Translation# Cache# Removed unknown language code: "${languageCode}" in "${baseKey}"`);
+                                logger.verbose(`Cache: Removed unknown language code: "${languageCode}" in "${baseKey}"`);
                             }
                         }
 
@@ -159,7 +161,7 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
 
         async write() {
             await fs.writeFile(cachePath, JSON.stringify(cache, null, 4), 'utf-8');
-            console.log(`Translation# Successfully wrote translations cache`);
+            logger.verbose(`Successfully wrote translations cache`);
         },
     }
 }

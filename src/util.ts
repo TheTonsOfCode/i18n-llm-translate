@@ -69,18 +69,6 @@ export function unflattenObject(flatTranslations: Record<string, string>): Recor
     return result;
 }
 
-export function logWithColor(color: 'red' | 'green' | 'yellow', firstMessage: string, ...otherMessages: any[]) {
-    const colorCodes: Record<string, string> = {
-        red: "\x1b[31m",
-        green: "\x1b[32m",
-        yellow: "\x1b[33m"
-    };
-
-    const colorCode = colorCodes[color] || "\x1b[0m"; // Default to reset if invalid color
-
-    console.log(`${colorCode}%s\x1b[0m`, firstMessage, ...otherMessages);
-}
-
 export function clearNullsFromResult(result: TranslateEngineTranslateResult): TranslateEngineTranslateResult {
     function walk(obj: any): any {
         if (obj === null || obj === undefined) {

@@ -30,6 +30,8 @@ export interface TranslateOptions {
 
     cleanup?: boolean;
     debug?: boolean;
+    verbose?: boolean;
+    logger?: import('./logger').Logger;
 }
 
 export interface TranslateEngineTranslateResult {

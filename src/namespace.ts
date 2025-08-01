@@ -4,7 +4,8 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions
 } from "$/type";
-import {formatLanguageContainerDirectoryName, logWithColor} from "$/util";
+import {formatLanguageContainerDirectoryName} from "$/util";
+import {defaultLogger} from "$/logger";
 import path from "path";
 import {promises as fs} from 'fs';
 
@@ -44,6 +45,7 @@ function cleanTargetTranslations(baseContent: any, targetContent: any): any {
 }
 
 export async function readTranslationsNamespaces(options: TranslateOptions): Promise<TranslateNamespace[]> {
+    const logger = options.logger || defaultLogger;
 
     const languagesDirectory = path.resolve(
         process.env.PWD!,
@@ -94,13 +96,13 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                             await fs.writeFile(targetFilePath, JSON.stringify(targetContent, null, 4), 'utf-8');
                             savedLanguages.push(targetLanguageCode);
                         } catch (error) {
-                            console.error(`Translation# Error writing to ${targetFilePath}:`, error);
+                            logger.error(`Error writing to ${targetFilePath}:`, error);
                         }
                     }
 
                     if (savedLanguages.length) {
-                        const languages = savedLanguages.length === 1 ? savedLanguages[0] : `(\n ${savedLanguages.join(', ')}\n)`;
-                        console.log(`Translation# Successfully wrote translations to ${languagesDirectory}/${languages}/${fileName}`);
+                        const languages = savedLanguages.length === 1 ? savedLanguages[0] : `(${savedLanguages.join(', ')})`;
+                        logger.verbose(`Successfully wrote translations to ${languagesDirectory}/${languages}/${fileName}`);
                     }
                 },
                 getMissingTranslations(): TranslateNamespaceMissingTranslations | undefined {
@@ -168,7 +170,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                 }
             })
         } catch (error) {
-            console.error(`Translation# Error reading "${baseLanguageDirectory}/${fileName}":`);
+            logger.error(`Error reading "${baseLanguageDirectory}/${fileName}":`, error);
             throw error;
         }
     }
@@ -177,7 +179,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
         try {
             validateTranslationStructure(namespace.baseLanguageTranslations)
         } catch (error: any) {
-            console.log(`Translation# Translation namespace "${baseLanguageDirectory}/${namespace.jsonFileName} not valid:`);
+            logger.error(`Translation namespace "${baseLanguageDirectory}/${namespace.jsonFileName}" not valid:`, error);
             throw error;
         }
     }
@@ -188,7 +190,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
         try {
             await fs.access(targetLanguageDirectory);
         } catch {
-            console.log(`Translation# Creating directory for target language: ${targetLanguageCode}`);
+            logger.verbose(`Creating directory for target language: ${targetLanguageCode}`);
             await fs.mkdir(targetLanguageDirectory, {recursive: true});
         }
 
@@ -201,13 +203,13 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                 try {
                     contentString = await fs.readFile(filePath, 'utf-8');
                 } catch {
-                    logWithColor('yellow', `Translation# Warning: "${targetLanguageCode}/${namespace.jsonFileName}" not found. Initializing empty JSON.`);
+                    logger.warn(`"${targetLanguageCode}/${namespace.jsonFileName}" not found. Initializing empty JSON.`);
                 }
 
                 try {
                     content = JSON.parse(contentString);
                 } catch (error) {
-                    logWithColor('yellow', `Translation# Warning: "${targetLanguageCode}/${namespace.jsonFileName}" invalid JSON.`);
+                    logger.warn(`"${targetLanguageCode}/${namespace.jsonFileName}" invalid JSON.`);
                     // noinspection ExceptionCaughtLocallyJS
                     throw error;
                 }
@@ -218,7 +220,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                     translations: cleanTargetTranslations(namespace.baseLanguageTranslations, content),
                 })
             } catch (error) {
-                console.error(`Translation# Error reading "${targetLanguageCode}/${namespace.jsonFileName}":`);
+                logger.error(`Error reading "${targetLanguageCode}/${namespace.jsonFileName}":`, error);
                 throw error;
             }
         }

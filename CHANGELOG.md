@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2025-08-01
+
+- Added comprehensive logging system with debug/verbose levels
+- Added tests
+- Replaced logWithColor with new logger interface
+
+---
+
+## [1.5.0] - 2025-07-31
+
+- Added retry mechanism for OpenAI API calls with rate-limit handling
+- OpenAI engine now automatically retries on timeouts and rate limits
+
+---
+
+## [1.4.0] - 2025-07-31
+
+- Fixed cache system with better synchronization and cleaning
+
+---
+
 ## [1.3.0] - 2025-03-25
 
 - Added Claude translator

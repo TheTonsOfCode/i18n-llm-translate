@@ -19,3 +19,35 @@
 #### Engine type
 - llm (Large Language Model)
 - ml (Machine Learning) - traditional translate api like DeepL, Google Translate
+
+### Logging System
+
+The library includes a logging system with support for different log levels, colors, and engine-specific prefixes.
+
+#### Basic Usage
+```javascript
+const { translate } = require('i18n-llm-translate');
+
+await translate(engine, {
+    // ... other options
+    debug: true,    // Enable debug logs
+    verbose: true   // Enable verbose logs
+});
+```
+
+#### Custom Logger
+```javascript
+const { DefaultLogger } = require('i18n-llm-translate/logger');
+
+const customLogger = new DefaultLogger({
+    debug: true,
+    verbose: true,
+    prefix: '🔧 My Translation Tool',
+    enableColors: true
+});
+
+await translate(engine, {
+    // ... other options
+    logger: customLogger
+});
+```
