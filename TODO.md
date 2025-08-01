@@ -20,6 +20,11 @@
 
 ### CLI ...
 
+#### Add validate command, as DeepL, or Google can detect language, Mark translation ad validation file which are wrong and choose
+    engine which will be used to fix them...
+
+    openai sometimes puts bulgarian translations in place to polish ones
+
 ### Try enabling reasoning for LLMs and check quality of the output
 
 ### Consider naming

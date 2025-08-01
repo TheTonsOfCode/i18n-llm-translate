@@ -8,9 +8,32 @@ import { flattenObject, unflattenObject } from "$/util";
 import { OpenAI } from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import ISO6391 from 'iso-639-1';
 
 function toLanguagesContext(baseLanguageCode: string, languages: string[]) {
-    return `You are translating from language with code "${baseLanguageCode}" to the following language codes: "${languages.join(', ')}".`;
+    const getLanguageName = (code: string) => {
+        // Try full code first
+        let name = ISO6391.getName(code);
+
+        // If not found and code contains region (e.g., en-gb), try just the language part
+        if (!name && code.includes('-')) {
+            const languagePart = code.split('-')[0];
+            name = ISO6391.getName(languagePart);
+
+            // If found, add region info
+            if (name) {
+                const regionPart = code.split('-')[1].toUpperCase();
+                return `${name} (${regionPart})`;
+            }
+        }
+
+        return name || code; // Fallback to code if name not found
+    };
+
+    const baseLanguageName = getLanguageName(baseLanguageCode);
+    const targetLanguagesWithNames = languages.map(code => `${code} (${getLanguageName(code)})`);
+
+    return `You are translating from language with code "${baseLanguageCode}" (${baseLanguageName}) to the following language codes: "${targetLanguagesWithNames.join(', ')}".`;
 }
 
 const ABSOLUTE_CONTEXT: string[] = [
@@ -18,6 +41,7 @@ const ABSOLUTE_CONTEXT: string[] = [
 
     'When translating a value, consider the key name to better understand the context.',
     'Variables enclosed in {} are coded and their names should remain unchanged.',
+    'IMPORTANT: Ensure that each translation is in the correct target language. Double-check that you are translating to the specific language requested for each language code.',
 ];
 
 interface OpenAIChunk {
