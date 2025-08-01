@@ -45,7 +45,7 @@ export class DefaultLogger implements Logger {
         this.options = {
             debug: options.debug ?? false,
             verbose: options.verbose ?? false,
-            prefix: options.prefix ?? '🌐 i18n-translate',
+            prefix: options.prefix ?? '🌐Translate',
             enableColors: options.enableColors ?? true
         };
     }
@@ -159,9 +159,4 @@ export class DefaultLogger implements Logger {
 }
 
 // Default logger instance that can be overridden
-export const defaultLogger = new DefaultLogger({
-    debug: false,
-    verbose: false,
-    prefix: '🌐 Translate',
-    enableColors: true
-});
+export const defaultLogger = new DefaultLogger();

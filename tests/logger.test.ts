@@ -176,7 +176,7 @@ describe('DefaultLogger', () => {
       logger.info('Test message')
       
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('🌐 i18n-translate')
+        expect.stringContaining('🌐Translate')
       )
     })
   })
