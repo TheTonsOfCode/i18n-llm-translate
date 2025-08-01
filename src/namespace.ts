@@ -4,10 +4,10 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions
 } from "$/type";
-import {formatLanguageContainerDirectoryName} from "$/util";
-import {defaultLogger} from "$/logger";
+import { formatLanguageContainerDirectoryName } from "$/util";
+import { defaultLogger } from "$/logger";
 import path from "path";
-import {promises as fs} from 'fs';
+import { promises as fs } from 'fs';
 
 function validateTranslationStructure(content: any): void {
     if (typeof content !== 'object' || content === null || Array.isArray(content)) {
@@ -129,7 +129,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                             if (typeof value === "object") {
                                 // Dig target languages
                                 const targetDig: TranslateNamespace['targetLanguages'] = []
-                                for (let {translations, ...rest} of targetLanguagesTranslations) {
+                                for (let { translations, ...rest } of targetLanguagesTranslations) {
                                     targetDig.push({
                                         translations: translations[key] || {},
                                         ...rest
@@ -191,8 +191,10 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
             await fs.access(targetLanguageDirectory);
         } catch {
             logger.verbose(`Creating directory for target language: ${targetLanguageCode}`);
-            await fs.mkdir(targetLanguageDirectory, {recursive: true});
+            await fs.mkdir(targetLanguageDirectory, { recursive: true });
         }
+
+        const missingFiles: string[] = [];
 
         for (const namespace of namespaces) {
             try {
@@ -203,7 +205,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                 try {
                     contentString = await fs.readFile(filePath, 'utf-8');
                 } catch {
-                    logger.warn(`"${targetLanguageCode}/${namespace.jsonFileName}" not found. Initializing empty JSON.`);
+                    missingFiles.push(namespace.jsonFileName);
                 }
 
                 try {
@@ -223,6 +225,10 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                 logger.error(`Error reading "${targetLanguageCode}/${namespace.jsonFileName}":`, error);
                 throw error;
             }
+        }
+
+        if (missingFiles.length > 0) {
+            logger.verbose(`Language code "${targetLanguageCode}" missing files: ${missingFiles.map(n => `"${n}"`).join(', ')}. Initializing empty JSON.`);
         }
     }
 
