@@ -59,6 +59,8 @@ export function createGoogleTranslateEngine(config: GoogleTranslateConfig): Tran
     return {
         name: 'Google Translate',
 
+        canBeTrustedWithVariablesTranslation: false,
+
         async translate(
             translations: Record<string, any>,
             options: TranslateOptions

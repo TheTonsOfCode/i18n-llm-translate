@@ -44,6 +44,13 @@ export interface TranslateEngine {
 
     name: string;
 
+    canBeTrustedWithVariablesTranslation: boolean;
+
+    // detectLanguage?(
+    //     translations: Record<string, any>,
+    //     options: TranslateOptions
+    // ): Promise<TranslateEngineTranslateResult>;
+
     translate(
         translations: Record<string, any>,
         options: TranslateOptions

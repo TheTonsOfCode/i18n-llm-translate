@@ -29,6 +29,9 @@ export function createCacheTranslateEngine(cacheManager: TranslationCacheManager
 
     return {
         name: 'Cache',
+
+        canBeTrustedWithVariablesTranslation: true,
+
         async translate(
             _translations: Record<string, any>,
             _options: TranslateOptions

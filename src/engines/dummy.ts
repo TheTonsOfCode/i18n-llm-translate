@@ -31,6 +31,9 @@ export function createDummyTranslateEngine(valueFormat: string = '$languageCode-
 
     return {
         name: 'Dummy (Flow testing)',
+
+        canBeTrustedWithVariablesTranslation: true,
+
         async translate(
             translations: Record<string, any>,
             options: TranslateOptions

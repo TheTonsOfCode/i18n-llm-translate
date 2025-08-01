@@ -55,6 +55,8 @@ export function createDeepLTranslateEngine(config: DeepLConfig): TranslateEngine
     return {
         name: 'DeepL',
 
+        canBeTrustedWithVariablesTranslation: false,
+
         async translate(
             translations: Record<string, any>,
             options: TranslateOptions
