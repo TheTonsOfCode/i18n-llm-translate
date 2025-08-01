@@ -4,7 +4,12 @@
   "description": "Automatically translates namespace-based JSON translation files across multiple languages from any source language",
   "main": "index.js",
   "scripts": {
-    "build": "./build.sh"
+    "build": "./build.sh",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint src/ tests/ --ext .ts",
+    "lint:fix": "eslint src/ tests/ --ext .ts --fix"
   },
   "repository": {
     "type": "git",
@@ -32,8 +37,14 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@types/node": "^20.14.12",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.32.0",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
   }
 }

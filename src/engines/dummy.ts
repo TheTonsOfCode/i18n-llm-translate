@@ -49,7 +49,7 @@ export function createDummyTranslateEngine(valueFormat: string = '$languageCode-
             {
                 targetLanguageTranslationsKeys
             }: TranslateNamespaceMissingTranslations,
-            options: TranslateOptions
+            _options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
             const languages: any = {};
 

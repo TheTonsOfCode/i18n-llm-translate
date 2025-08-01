@@ -30,13 +30,13 @@ export async function readTranslationsCache(options: TranslateOptions): Promise<
 
     try {
         cache = await fs.readFile(cachePath, 'utf-8');
-    } catch (error) {
+    } catch {
         console.warn(`Translation# Warning: "${cachePath}" not found. Initializing empty JSON.`);
     }
 
     try {
         cache = JSON.parse(cache);
-    } catch (error) {
+    } catch {
         console.error(`Translation# Error reading "${cachePath}". File is not a proper JSON!`);
     }
 

@@ -30,8 +30,8 @@ export function createCacheTranslateEngine(cacheManager: TranslationCacheManager
     return {
         name: 'Cache',
         async translate(
-            translations: Record<string, any>,
-            options: TranslateOptions
+            _translations: Record<string, any>,
+            _options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
 
             throw new Error('This engine should not be used here!')
@@ -53,7 +53,7 @@ export function createCacheTranslateEngine(cacheManager: TranslationCacheManager
             {
                 targetLanguageTranslationsKeys
             }: TranslateNamespaceMissingTranslations,
-            options: TranslateOptions
+            _options: TranslateOptions
         ): Promise<TranslateEngineTranslateResult> {
             const languages: any = {};
 

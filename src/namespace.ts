@@ -69,7 +69,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
 
             try {
                 content = JSON.parse(content);
-            } catch (error) {
+            } catch {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new Error('File is not a proper JSON!');
             }
@@ -187,7 +187,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
 
         try {
             await fs.access(targetLanguageDirectory);
-        } catch (error) {
+        } catch {
             console.log(`Translation# Creating directory for target language: ${targetLanguageCode}`);
             await fs.mkdir(targetLanguageDirectory, {recursive: true});
         }
@@ -200,7 +200,7 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                 let contentString: string = '{}';
                 try {
                     contentString = await fs.readFile(filePath, 'utf-8');
-                } catch (error) {
+                } catch {
                     logWithColor('yellow', `Translation# Warning: "${targetLanguageCode}/${namespace.jsonFileName}" not found. Initializing empty JSON.`);
                 }
 
