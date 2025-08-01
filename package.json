@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "./build.sh",
+    "publish": "./publish.sh",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
