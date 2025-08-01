@@ -581,7 +581,7 @@ describe('translate function', () => {
     expect(mockCache.syncCacheWithNamespaces).toHaveBeenCalledWith([mockNamespace], true)
     expect(mockCache.write).toHaveBeenCalled()
     expect(mockNamespace.write).toHaveBeenCalled()
-    expect(mockLogger.success).toHaveBeenCalledWith('Translated and saved successfully')
+    expect(mockLogger.success).toHaveBeenCalledWith(expect.stringContaining('Translated and saved successfully'))
   })
 
   it('should write cache when dirtyCache is true', async () => {
@@ -621,7 +621,7 @@ describe('translate function', () => {
     await translate(mockEngine, options)
 
     expect(mockCache.write).toHaveBeenCalled()
-    expect(mockLogger.success).toHaveBeenCalledWith('No changes detected')
+    expect(mockLogger.success).toHaveBeenCalledWith(expect.stringContaining('No changes detected'))
   })
 
   it('should log no changes when not dirty', async () => {
@@ -660,7 +660,7 @@ describe('translate function', () => {
 
     await translate(mockEngine, options)
 
-    expect(mockLogger.success).toHaveBeenCalledWith('No changes detected')
+    expect(mockLogger.success).toHaveBeenCalledWith(expect.stringContaining('No changes detected'))
   })
 
   it('should handle debug mode for missed translations', async () => {

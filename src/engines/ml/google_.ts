@@ -5,6 +5,7 @@ import {
     TranslateOptions
 } from "$/type";
 import {flattenObject, unflattenObject} from "$/util";
+import {defaultLogger} from "$/logger";
 
 interface GoogleTranslateTextResult {
     translatedText: string;
@@ -66,8 +67,10 @@ export function createGoogleTranslateEngine(config: GoogleTranslateConfig): Tran
             const flatTranslations = flattenObject(translations);
             const languagesTranslations: any = {};
 
+            const logger = options.logger || defaultLogger;
+
             for (let targetLanguageCode of options.targetLanguageCodes) {
-                if (options.debug) console.log(`Google Translate > Translating '${options.baseLanguageCode}'>'${targetLanguageCode}'...`);
+                logger.engineDebug('Google Translate', `Translating '${options.baseLanguageCode}' > '${targetLanguageCode}'`);
                 const baseTranslationsValues = Object.values(flatTranslations);
 
                 const result = await fetchTranslations(targetLanguageCode, baseTranslationsValues, options);
@@ -93,8 +96,10 @@ export function createGoogleTranslateEngine(config: GoogleTranslateConfig): Tran
             const flatBaseTranslations = flattenObject(missingTranslations.baseLanguageTranslations);
             const languagesTranslations: any = {};
 
+            const logger = options.logger || defaultLogger;
+
             for (let targetLanguageCode in missingTranslations.targetLanguageTranslationsKeys) {
-                if (options.debug) console.log(`Google Translate > Translating '${options.baseLanguageCode}'>'${targetLanguageCode}'...`);
+                logger.engineDebug('Google Translate', `Translating '${options.baseLanguageCode}' > '${targetLanguageCode}'`);
                 const missingKeys = Object.keys(flattenObject(missingTranslations.targetLanguageTranslationsKeys[targetLanguageCode]));
 
                 const missingValues: string[] = [];

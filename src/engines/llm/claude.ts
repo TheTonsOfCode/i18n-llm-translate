@@ -4,6 +4,7 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions
 } from "$/type";
+import {defaultLogger} from "$/logger";
 
 const ABSOLUTE_CONTEXT: string[] = [
     'You have to output JSON and only JSON.',
@@ -91,11 +92,12 @@ export function createClaudeTranslateEngine(config: OpenAIConfig): TranslateEngi
             const potentialJSON = extractBracedContent('{' + data.content[0].text);
             translations = JSON.parse(potentialJSON!);
         } catch (e) {
-            console.log('----------');
-            console.log('Error while parsing translations to json!');
-            console.log('Context:\n\n', context, '\n\n');
-            console.log('Claude response data:\n\n', data);
-            console.log('----------');
+            // This error logging should always be visible as it's a critical error
+            console.error('----------');
+            console.error('Error while parsing translations to json!');
+            console.error('Context:\n\n', context, '\n\n');
+            console.error('Claude response data:\n\n', data);
+            console.error('----------');
             throw e;
         }
 
@@ -116,6 +118,7 @@ export function createClaudeTranslateEngine(config: OpenAIConfig): TranslateEngi
 
             const languagesTranslations: any = {}
 
+            const logger = options.logger || defaultLogger;
             let input_tokens = 0;
             let output_tokens = 0;
             for (let targetLanguageCode of options.targetLanguageCodes) {
@@ -130,9 +133,7 @@ export function createClaudeTranslateEngine(config: OpenAIConfig): TranslateEngi
                     `Maintain professional terminology and context: ${JSON.stringify(translations)}`
                 ].join(' ');
 
-                if (options.debug) {
-                    console.log(`Claude > Fetching translations for language "${targetLanguageCode}"`);
-                }
+                logger.engineDebug('Claude', `Fetching translations for language "${targetLanguageCode}"`);
 
                 const {data, ...consumption} = await fetchAnthropic(context);
 
@@ -140,12 +141,10 @@ export function createClaudeTranslateEngine(config: OpenAIConfig): TranslateEngi
                 input_tokens += consumption.input_tokens;
                 output_tokens += consumption.output_tokens;
 
-                if (options.debug) {
-                    console.log(`Claude > Fetched translations which consumed:`, consumption);
-                }
+                logger.engineVerbose('Claude', `Fetched translations which consumed: ${JSON.stringify(consumption)}`);
             }
-            if (options.debug && options.targetLanguageCodes.length > 1) {
-                console.log(`Claude > Consumed in total:`, {input_tokens, output_tokens});
+            if (options.targetLanguageCodes.length > 1) {
+                logger.engineVerbose('Claude', `Consumed in total: ${JSON.stringify({input_tokens, output_tokens})}`);
             }
 
             return languagesTranslations;
@@ -170,17 +169,13 @@ export function createClaudeTranslateEngine(config: OpenAIConfig): TranslateEngi
                 `Translate fully next object: ${JSON.stringify(missingTranslations.targetLanguageTranslationsKeys)}`
             ].join(' ');
 
-            if (options.debug) {
-                console.log(`Claude > Fetching missing translations`);
-            }
+            const logger = options.logger || defaultLogger;
+            logger.engineDebug('Claude', `Fetching missing translations`);
 
             const {data, ...consumption} = await fetchAnthropic(context);
 
-            console.log(JSON.stringify(data, null, 2));
-
-            if (options.debug) {
-                console.log(`Claude > Fetched translations which consumed:`, consumption);
-            }
+            logger.engineVerbose('Claude', `Response data: ${JSON.stringify(data, null, 2)}`);
+            logger.engineVerbose('Claude', `Fetched translations which consumed: ${JSON.stringify(consumption)}`);
 
             return data;
         }

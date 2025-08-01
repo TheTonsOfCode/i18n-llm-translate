@@ -121,7 +121,8 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async function withRetry<T>(operation: () => Promise<T>, operationName: string): Promise<T> {
+    async function withRetry<T>(operation: () => Promise<T>, operationName: string, options: TranslateOptions): Promise<T> {
+        const logger = options.logger || defaultLogger;
         let lastError: Error;
 
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -152,7 +153,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                         const retryAfterMs = (error as any)?.headers?.['retry-after-ms'];
                         const waitTime = retryAfterMs ? parseInt(retryAfterMs) * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY : 1000; // Default 1s if no header
 
-                        console.log(`OpenAI ${operationName} > Rate limit hit on attempt ${attempt}/${MAX_RETRIES}, waiting ${waitTime}ms before retry...`);
+                        logger.engineDebug('OpenAI', `Rate limit hit on attempt ${attempt}/${MAX_RETRIES}, waiting ${waitTime}ms before retry...`);
 
                         // Set global timeout promise so other chunks wait
                         const sleepPromise = sleep(waitTime);
@@ -160,7 +161,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                         await sleepPromise;
                         globalTimeoutPromise = null;
                     } else if (isTimeout) {
-                        console.log(`OpenAI ${operationName} > Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
+                        logger.engineDebug('OpenAI', `Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
 
                         // Set global timeout promise so other chunks wait
                         const sleepPromise = sleep(2000); // 2 second delay for timeout
@@ -297,7 +298,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                 }
 
                 return translatedChunk;
-            }, 'translate');
+            }, 'translate', options);
         }
 
         const mergedFlat: any = {};

@@ -8,6 +8,8 @@ import { z } from "zod";
 import { createCacheTranslateEngine } from "$/engines/cache";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
+    const startTime = Date.now();
+    
     // Setup logger
     const logger = options.logger || defaultLogger;
     if (options.debug !== undefined) logger.setDebug?.(options.debug);
@@ -136,9 +138,23 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             await namespace.write();
         }
 
-        logger.success(`Translated and saved successfully`);
+        const duration = Date.now() - startTime;
+        logger.success(`Translated and saved successfully in ${formatDuration(duration)}`);
     } else {
-        logger.success(`No changes detected`);
+        const duration = Date.now() - startTime;
+        logger.success(`No changes detected (completed in ${formatDuration(duration)})`);
+    }
+}
+
+function formatDuration(ms: number): string {
+    if (ms < 1000) {
+        return `${ms}ms`;
+    } else if (ms < 60000) {
+        return `${(ms / 1000).toFixed(1)}s`;
+    } else {
+        const minutes = Math.floor(ms / 60000);
+        const seconds = ((ms % 60000) / 1000).toFixed(1);
+        return `${minutes}m ${seconds}s`;
     }
 }
 
