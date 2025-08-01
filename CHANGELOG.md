@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added variable consistency validation for {{ variableName }} patterns in translations
 - Aggregating namespace message "Initializing empty JSON"
 - Default logger name as "🌐Translate"
-- translate function, options parameter validation
+- Translate function, options parameter validation
+- Translate tests as multiple test files
 
 
 ---

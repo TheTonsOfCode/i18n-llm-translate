@@ -1,11 +1,15 @@
-import { readTranslationsCache } from "$/cache";
-import { cleanLanguagesDirectory, cleanNamespaces } from "$/cleaner";
-import { applyEngineTranslations, readTranslationsNamespaces } from "$/namespace";
-import { TranslateEngine, TranslateOptions } from "$/type";
+import {readTranslationsCache} from "$/cache";
+import {cleanLanguagesDirectory, cleanNamespaces} from "$/cleaner";
+import {applyEngineTranslations, readTranslationsNamespaces} from "$/namespace";
+import {TranslateEngine, TranslateOptions} from "$/type";
 import {clearNullsFromResult, countTranslatedKeys, formatDuration} from "$/util";
-import { defaultLogger } from "$/logger";
-import { createCacheTranslateEngine } from "$/engines/cache";
-import { validateTranslateOptions, generateLanguagesTranslateReturnZodSchema, generateTranslationsZodSchema } from "$/validation";
+import {defaultLogger} from "$/logger";
+import {createCacheTranslateEngine} from "$/engines/cache";
+import {
+    validateTranslateOptions,
+    generateLanguagesTranslateReturnZodSchema,
+    generateTranslationsZodSchema
+} from "$/validation";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
     const startTime = Date.now();
@@ -17,16 +21,16 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
 
     // Validate configuration before filtering
     validateTranslateOptions(options);
-    
+
     // We filter out base language, as it is used only as reference
     options.targetLanguageCodes = options.targetLanguageCodes.filter(languageCode => languageCode !== options.baseLanguageCode);
-    
+
     // If no target languages remain after filtering, return early
     if (options.targetLanguageCodes.length === 0) {
         logger.info('No target languages to translate after filtering out base language');
         return;
     }
-    
+
     // We operate only on json cache
     if (!options.namesMapping) options.namesMapping = {};
     if (!options.namesMapping.jsonCache) options.namesMapping.jsonCache = '.translations-cache';
