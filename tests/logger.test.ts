@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { DefaultLogger } from '$/logger'
+import { DefaultTranslateLogger } from '$/logger'
 
 describe('DefaultLogger', () => {
   let consoleSpy: any
@@ -10,7 +10,7 @@ describe('DefaultLogger', () => {
 
   describe('basic logging methods', () => {
     it('should log info messages', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.info('Test info message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -19,7 +19,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should log error messages', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.error('Test error message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -28,7 +28,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should log success messages', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.success('Test success message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -37,7 +37,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should log warning messages', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.warn('Test warning message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -48,14 +48,14 @@ describe('DefaultLogger', () => {
 
   describe('debug and verbose logging', () => {
     it('should not log debug messages by default', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.debug('Debug message')
       
       expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should log debug messages when debug is enabled', () => {
-      const logger = new DefaultLogger({ debug: true })
+      const logger = new DefaultTranslateLogger({ debug: true })
       logger.debug('Debug message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -64,14 +64,14 @@ describe('DefaultLogger', () => {
     })
 
     it('should not log verbose messages by default', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.verbose('Verbose message')
       
       expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should log verbose messages when verbose is enabled', () => {
-      const logger = new DefaultLogger({ verbose: true })
+      const logger = new DefaultTranslateLogger({ verbose: true })
       logger.verbose('Verbose message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -82,7 +82,7 @@ describe('DefaultLogger', () => {
 
   describe('engine-specific logging', () => {
     it('should log engine messages with engine prefix', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.engineLog('OpenAI', 'Engine message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -92,7 +92,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should log engine debug messages when debug is enabled', () => {
-      const logger = new DefaultLogger({ debug: true })
+      const logger = new DefaultTranslateLogger({ debug: true })
       logger.engineDebug('OpenAI', 'Engine debug message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -102,14 +102,14 @@ describe('DefaultLogger', () => {
     })
 
     it('should not log engine debug messages when debug is disabled', () => {
-      const logger = new DefaultLogger({ debug: false })
+      const logger = new DefaultTranslateLogger({ debug: false })
       logger.engineDebug('OpenAI', 'Engine debug message')
       
       expect(consoleSpy).not.toHaveBeenCalled()
     })
 
     it('should log engine verbose messages when verbose is enabled', () => {
-      const logger = new DefaultLogger({ verbose: true })
+      const logger = new DefaultTranslateLogger({ verbose: true })
       logger.engineVerbose('OpenAI', 'Engine verbose message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -121,7 +121,7 @@ describe('DefaultLogger', () => {
 
   describe('configuration methods', () => {
     it('should enable debug logging via setDebug', () => {
-      const logger = new DefaultLogger({ debug: false })
+      const logger = new DefaultTranslateLogger({ debug: false })
       logger.setDebug(true)
       logger.debug('Debug message')
       
@@ -131,7 +131,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should enable verbose logging via setVerbose', () => {
-      const logger = new DefaultLogger({ verbose: false })
+      const logger = new DefaultTranslateLogger({ verbose: false })
       logger.setVerbose(true)
       logger.verbose('Verbose message')
       
@@ -143,7 +143,7 @@ describe('DefaultLogger', () => {
 
   describe('custom prefix and colors', () => {
     it('should use custom prefix', () => {
-      const logger = new DefaultLogger({ prefix: '🔧 custom-tool' })
+      const logger = new DefaultTranslateLogger({ prefix: '🔧 custom-tool' })
       logger.info('Test message')
       
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -152,7 +152,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should disable colors when enableColors is false', () => {
-      const logger = new DefaultLogger({ enableColors: false })
+      const logger = new DefaultTranslateLogger({ enableColors: false })
       logger.info('Test message')
       
       const call = consoleSpy.mock.calls[0][0]
@@ -163,7 +163,7 @@ describe('DefaultLogger', () => {
 
   describe('message formatting', () => {
     it('should include timestamp in messages', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.info('Test message')
       
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -172,7 +172,7 @@ describe('DefaultLogger', () => {
     })
 
     it('should include default prefix in messages', () => {
-      const logger = new DefaultLogger()
+      const logger = new DefaultTranslateLogger()
       logger.info('Test message')
       
       expect(consoleSpy).toHaveBeenCalledWith(

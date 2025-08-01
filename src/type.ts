@@ -1,3 +1,5 @@
+import {TranslateLogger} from "$/logger";
+
 export type TranslateOptionsNamesMappingLanguagesCallback = (languageCode: string, options: TranslateOptions) => string;
 /**
  * Parameters: {language}
@@ -31,7 +33,7 @@ export interface TranslateOptions {
     cleanup?: boolean;
     debug?: boolean;
     verbose?: boolean;
-    logger?: import('./logger').Logger;
+    logger?: TranslateLogger;
 }
 
 export interface TranslateEngineTranslateResult {

@@ -37,9 +37,9 @@ await translate(engine, {
 
 #### Custom Logger
 ```javascript
-const { DefaultLogger } = require('i18n-llm-translate/logger');
+const { DefaultTranslateLogger } = require('i18n-llm-translate/logger');
 
-const customLogger = new DefaultLogger({
+const customLogger = new DefaultTranslateLogger({
     debug: true,
     verbose: true,
     prefix: '🔧 My Translation Tool',

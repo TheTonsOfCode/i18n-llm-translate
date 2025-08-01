@@ -12,7 +12,7 @@ const colors = {
     gray: '\x1b[90m'
 } as const;
 
-export interface Logger {
+export interface TranslateLogger {
     log(message: string, ...args: any[]): void;
     info(message: string, ...args: any[]): void;
     warn(message: string, ...args: any[]): void;
@@ -38,7 +38,7 @@ export interface LoggerOptions {
     enableColors?: boolean;
 }
 
-export class DefaultLogger implements Logger {
+export class DefaultTranslateLogger implements TranslateLogger {
     private options: Required<LoggerOptions>;
 
     constructor(options: LoggerOptions = {}) {
@@ -159,4 +159,4 @@ export class DefaultLogger implements Logger {
 }
 
 // Default logger instance that can be overridden
-export const defaultLogger = new DefaultLogger();
+export const defaultLogger = new DefaultTranslateLogger();
