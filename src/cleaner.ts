@@ -4,7 +4,7 @@ import { defaultLogger } from "$/logger";
 import path from "path";
 import { promises as fs } from 'fs';
 
-export async function cleanLanguagesDirectory(options: TranslateOptions): Promise<void> {
+export async function cleanLanguagesDirectory(options: TranslateOptions): Promise<boolean> {
     const logger = options.logger || defaultLogger;
     const languagesDirectory = path.resolve(process.env.PWD!, options.languagesDirectoryPath);
     const validEntries = new Set([
@@ -12,6 +12,8 @@ export async function cleanLanguagesDirectory(options: TranslateOptions): Promis
         formatLanguageContainerDirectoryName(options.baseLanguageCode, options),
         options.namesMapping!.jsonCache!
     ]);
+
+    let dirty = false;
 
     try {
         const entries = await fs.readdir(languagesDirectory, { withFileTypes: true });
@@ -26,6 +28,7 @@ export async function cleanLanguagesDirectory(options: TranslateOptions): Promis
                     } else {
                         await fs.unlink(entryPath);
                     }
+                    dirty = true;
                     logger.verbose(`Removed invalid entry: ${entryPath}`);
                 } catch (error) {
                     logger.error(`Error removing ${entryPath}:`, error);
@@ -35,6 +38,8 @@ export async function cleanLanguagesDirectory(options: TranslateOptions): Promis
     } catch (error) {
         logger.error(`Error cleaning languages directory:`, error);
     }
+
+    return dirty;
 }
 
 export async function cleanNamespaces(options: TranslateOptions, namespaces: TranslateNamespace[]): Promise<void> {

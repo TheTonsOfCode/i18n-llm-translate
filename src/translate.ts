@@ -42,13 +42,16 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
         options.applicationContextEntries[i] = entry;
     }
 
-    const namespaces = await readTranslationsNamespaces(options);
+    let namespaces = await readTranslationsNamespaces(options);
 
     const cache = await readTranslationsCache(options);
 
     if (options.cleanup) {
         // Remove files that are neither language directories nor cache file
-        await cleanLanguagesDirectory(options);
+        const dirtyNamespaces = await cleanLanguagesDirectory(options);
+
+        if (dirtyNamespaces) namespaces = await readTranslationsNamespaces(options);
+
         // Clean each language directory by removing files that are not namespace files from the base language directory
         await cleanNamespaces(options, namespaces);
     }

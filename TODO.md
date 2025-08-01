@@ -1,10 +1,4 @@
 
-# TODO
-
-
-!!! when changing in target format for eg. form lowercase to upper with cleanup, error appears
-
-
 ### Tests:
 - locale/ directories with dummy-engine
 - openai engine tests
@@ -45,9 +39,9 @@ Dirty on removed languages inside cache
 - deepseek API / locally hosted deepseek
 
 ### Add Counting of Total Tokens for All Translation Requests to Each Model
-- Add a flag to enable statistics tracking using a `.statistics.json` file with the following structure:  
+- Add a flag to enable statistics tracking using a `.statistics.json` file with the following structure:
   This allows users to monitor total token consumption.
-- Token data should be saved in such a way that even if a translation request fails but the API fetch is successful,  
+- Token data should be saved in such a way that even if a translation request fails but the API fetch is successful,
   the `.statistics.json` file is still updated.
 ```json
 {
