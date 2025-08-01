@@ -4,9 +4,8 @@ import { applyEngineTranslations, readTranslationsNamespaces } from "$/namespace
 import { TranslateEngine, TranslateOptions } from "$/type";
 import { clearNullsFromResult, countTranslatedKeys } from "$/util";
 import { defaultLogger } from "$/logger";
-import { z } from "zod";
 import { createCacheTranslateEngine } from "$/engines/cache";
-import { validateTranslateOptions } from "$/validation";
+import { validateTranslateOptions, generateLanguagesTranslateReturnZodSchema, generateTranslationsZodSchema } from "$/validation";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
     const startTime = Date.now();
@@ -169,24 +168,3 @@ function formatDuration(ms: number): string {
     }
 }
 
-function generateLanguagesTranslateReturnZodSchema(targetLanguages: string[], differencesSchema: z.ZodObject<any>): z.ZodObject<any> {
-    const object: any = {};
-    for (let targetLanguage of targetLanguages) {
-        object[targetLanguage] = differencesSchema;
-    }
-    return z.object(object);
-}
-
-function generateTranslationsZodSchema(obj: Record<string, any>): z.ZodObject<any> {
-    const object: any = {};
-    for (let [key, value] of Object.entries(obj)) {
-        if (typeof value === "string") {
-            object[key] = z.string();
-        } else if (typeof value === "object" && value !== null) {
-            object[key] = generateTranslationsZodSchema(value);
-        } else {
-            throw new Error(`Invalid type for key '${key}': Expected string or object.`);
-        }
-    }
-    return z.object(object);
-}

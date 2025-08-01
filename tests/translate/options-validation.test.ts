@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { validateTranslateOptions } from '../src/validation';
-import { TranslateOptions } from '../src/type';
+import { validateTranslateOptions } from '$/validation';
+import { TranslateOptions } from '$/type';
 
 describe('TranslateOptions validation', () => {
     const validOptions: TranslateOptions = {

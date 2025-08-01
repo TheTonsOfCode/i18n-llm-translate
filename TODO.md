@@ -5,10 +5,6 @@
 !!! when changing in target format for eg. form lowercase to upper with cleanup, error appears
 
 
-
-!!! add zod checks to make sure that {{ variableName }} stayed consistent after translation 
-
-
 ### Tests:
 - locale/ directories with dummy-engine
 - cache tests
