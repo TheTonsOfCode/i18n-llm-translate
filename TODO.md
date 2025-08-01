@@ -7,7 +7,6 @@
 
 ### Tests:
 - locale/ directories with dummy-engine
-- cache tests
 - openai engine tests
 
 ### CLI ...
@@ -18,9 +17,6 @@
     openai sometimes puts bulgarian translations in place to polish ones
 
 ### Try enabling reasoning for LLMs and check quality of the output
-
-
-### Some logger? Instead of console logs...
 
 
 ### Application context move to engines instead of options.
