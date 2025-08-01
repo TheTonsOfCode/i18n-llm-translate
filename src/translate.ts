@@ -22,6 +22,9 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     // Validate configuration before filtering
     validateTranslateOptions(options);
 
+    options.baseLanguageCode = options.baseLanguageCode.toLowerCase();
+    options.targetLanguageCodes = options.targetLanguageCodes.map(languageCode => languageCode.toLowerCase());
+
     // We filter out base language, as it is used only as reference
     options.targetLanguageCodes = options.targetLanguageCodes.filter(languageCode => languageCode !== options.baseLanguageCode);
 
