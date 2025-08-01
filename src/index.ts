@@ -2,7 +2,7 @@ import { readTranslationsCache } from "$/cache";
 import { cleanLanguagesDirectory, cleanNamespaces } from "$/cleaner";
 import { applyEngineTranslations, readTranslationsNamespaces } from "$/namespace";
 import { TranslateEngine, TranslateOptions } from "$/type";
-import { clearNullsFromResult, countTranslatedKeys } from "$/util";
+import {clearNullsFromResult, countTranslatedKeys, formatDuration} from "$/util";
 import { defaultLogger } from "$/logger";
 import { createCacheTranslateEngine } from "$/engines/cache";
 import { validateTranslateOptions, generateLanguagesTranslateReturnZodSchema, generateTranslationsZodSchema } from "$/validation";
@@ -153,18 +153,6 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     } else {
         const duration = Date.now() - startTime;
         logger.success(`No changes detected (completed in ${formatDuration(duration)})`);
-    }
-}
-
-function formatDuration(ms: number): string {
-    if (ms < 1000) {
-        return `${ms}ms`;
-    } else if (ms < 60000) {
-        return `${(ms / 1000).toFixed(1)}s`;
-    } else {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = ((ms % 60000) / 1000).toFixed(1);
-        return `${minutes}m ${seconds}s`;
     }
 }
 
