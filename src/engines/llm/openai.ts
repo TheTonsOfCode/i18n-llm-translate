@@ -129,7 +129,12 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
             try {
                 // Wait for any ongoing global timeout before attempting
                 if (globalTimeoutPromise) {
+                    const startTime = Date.now();
                     await globalTimeoutPromise;
+                    const waitTime = Date.now() - startTime;
+                    if (waitTime > 0) {
+                        logger.engineDebug('OpenAI', `Waited ${waitTime}ms for global timeout synchronization`);
+                    }
                 }
 
                 return await operation();
@@ -158,15 +163,22 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                         // Set global timeout promise so other chunks wait
                         const sleepPromise = sleep(waitTime);
                         globalTimeoutPromise = sleepPromise;
+                        const startTime = Date.now();
                         await sleepPromise;
+                        const actualWaitTime = Date.now() - startTime;
+                        logger.engineDebug('OpenAI', `Waited ${actualWaitTime}ms for rate limit retry`);
                         globalTimeoutPromise = null;
                     } else if (isTimeout) {
-                        logger.engineDebug('OpenAI', `Timeout on attempt ${attempt}/${MAX_RETRIES}, retrying...`);
+                        const timeoutWaitTime = 2000; // 2 second delay for timeout
+                        logger.engineDebug('OpenAI', `Timeout on attempt ${attempt}/${MAX_RETRIES}, waiting ${timeoutWaitTime}ms before retry...`);
 
                         // Set global timeout promise so other chunks wait
-                        const sleepPromise = sleep(2000); // 2 second delay for timeout
+                        const sleepPromise = sleep(timeoutWaitTime);
                         globalTimeoutPromise = sleepPromise;
+                        const startTime = Date.now();
                         await sleepPromise;
+                        const actualWaitTime = Date.now() - startTime;
+                        logger.engineDebug('OpenAI', `Waited ${actualWaitTime}ms for timeout retry`);
                         globalTimeoutPromise = null;
                     }
                     continue;
@@ -314,7 +326,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
 
                 fetchedCount++;
 
-                logger.engineVerbose('OpenAI', `Fetched chunk ${i + 1} (${fetchedCount}/${chunks.length})`);
+                logger.engineDebug('OpenAI', `Fetched chunk ${i + 1} (${fetchedCount}/${chunks.length})`);
                 return result;
             })
         );

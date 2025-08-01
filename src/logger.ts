@@ -162,6 +162,6 @@ export class DefaultLogger implements Logger {
 export const defaultLogger = new DefaultLogger({
     debug: false,
     verbose: false,
-    prefix: '🌐 i18n-translate',
+    prefix: '🌐 Translate',
     enableColors: true
 });
