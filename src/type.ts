@@ -30,6 +30,15 @@ export interface TranslateOptions {
 
     applicationContextEntries: string[];
 
+    /**
+     * Default: 3
+     */
+    maxRetriesOnEngineValidationError?: number;
+    /**
+     * Default: llm-only
+     */
+    retryOnEngineValidationErrorFor?: 'all' | 'llm-only' | 'none';
+
     cleanup?: boolean;
     debug?: boolean;
     verbose?: boolean;
@@ -43,6 +52,8 @@ export interface TranslateEngineTranslateResult {
 export interface TranslateEngine {
 
     name: string;
+
+    type: 'llm' | 'ml' | 'other';
 
     canBeTrustedWithVariablesTranslation: boolean;
 

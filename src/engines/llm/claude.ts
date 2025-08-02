@@ -111,6 +111,8 @@ export function createClaudeTranslateEngine(config: OpenAIConfig): TranslateEngi
     return {
         name: `Claude (${model})`,
 
+        type: 'llm',
+
         canBeTrustedWithVariablesTranslation: true,
 
         async translate(

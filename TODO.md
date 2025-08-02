@@ -1,4 +1,6 @@
 
+Engine: maxRetriesOnEngineValidationError, do retries on certain engine type validation error
+
 ### Tests:
 - locale/ directories with dummy-engine
 - openai engine tests

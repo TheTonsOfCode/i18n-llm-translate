@@ -13,6 +13,7 @@ vi.mock('$/engines/cache')
 
 const mockEngine = {
   name: 'test-engine',
+  type: 'llm',
   translate: vi.fn().mockResolvedValue({}),
   translateMissed: vi.fn().mockResolvedValue({})
 } as TranslateEngine & {

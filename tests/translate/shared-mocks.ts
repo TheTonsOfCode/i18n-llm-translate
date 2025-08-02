@@ -3,6 +3,7 @@ import { TranslateEngine, TranslateNamespace } from '$/type'
 
 export const mockEngine = {
   name: 'test-engine',
+  type: 'llm',
   translate: vi.fn().mockResolvedValue({}),
   translateMissed: vi.fn().mockResolvedValue({})
 } as TranslateEngine & {

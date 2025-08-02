@@ -374,6 +374,8 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     return {
         name: `OpenAI (${model})`,
 
+        type: 'llm',
+
         canBeTrustedWithVariablesTranslation: true,
 
         async translate(

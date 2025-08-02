@@ -12,6 +12,10 @@ import {
 } from "$/validation";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
+    if (!process.env.TEST_ENGINES && engine.type !== 'llm' && engine.type !== 'ml') {
+        throw new Error('Wrong translate engine');
+    }
+
     const startTime = Date.now();
 
     // Setup logger
@@ -44,6 +48,8 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
         if (!entry.endsWith(".")) entry = `${entry}.`
         options.applicationContextEntries[i] = entry;
     }
+    if (options.maxRetriesOnEngineValidationError === undefined) options.maxRetriesOnEngineValidationError = 3;
+    if (!options.retryOnEngineValidationErrorFor) options.retryOnEngineValidationErrorFor = 'llm-only';
 
     let namespaces = await readTranslationsNamespaces(options);
 
@@ -81,6 +87,8 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const translationsResults = await engine.translate(baseDifferences, options);
 
             const engineCheck = engineResultSchema.safeParse(translationsResults);
+
+            // TODO: RETRIES
 
             if (!engineCheck.success) {
                 logger.error(`Engine does not returned proper translation structure!`);
@@ -132,6 +140,8 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
 
             const engineCheck = engineResultSchema.safeParse(translationsResults);
 
+            // TODO: RETRIES
+            
             if (!engineCheck.success) {
                 logger.error(`Engine does not returned proper translation structure!`);
                 logger.error(`Validation error:`, engineCheck.error.issues);

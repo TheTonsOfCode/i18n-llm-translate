@@ -9,6 +9,7 @@
 
         "test:engine:deepl": "TEST_ENGINES=deepl vitest run"
         "test:engine:openai"
-        "test:engine:*": "TEST_ENGINES=openai,deepl vitest run"
+        "test:engine:openai,deepl"
+        "test:engine:*": "TEST_ENGINES=* vitest run"
 
 - przy testach jest logowany engine itd.

@@ -30,6 +30,8 @@ export function createCacheTranslateEngine(cacheManager: TranslationCacheManager
     return {
         name: 'Cache',
 
+        type: 'other',
+
         canBeTrustedWithVariablesTranslation: true,
 
         async translate(
