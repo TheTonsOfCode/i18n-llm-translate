@@ -91,3 +91,21 @@ Dirty on removed languages inside cache
     "hi": "Hi {{user}}! Welcom to Acme!"
   }
 }
+
+## ✅ Completed Features
+
+### ✓ Add Character Count and Source Key Statistics
+- Added counting of total characters sent for translation across all translation requests
+- Added counting of source keys (base language keys) sent for translation
+- Characters are counted from the source text being sent to translation engines (not received translations)
+- For missing translations, characters are correctly multiplied by the number of target languages that need each specific key
+- This provides accurate API usage monitoring and cost estimation based on actual text sent to translation services
+- Statistics are displayed in the final translation summary showing both source keys and characters sent
+
+### ✓ Add Price Estimation for ML Translation Engines
+- Implemented `estimatePrice` function for DeepL and Google Translate engines
+- DeepL pricing: $25 per 1M characters (simplified calculation)
+- Google Translate pricing: $20 per 1M characters
+- Price estimates are automatically displayed in translation summary when using supported engines
+- Uses straightforward per-million-character calculation for easy cost estimation
+- Helps users understand potential costs before running large translation jobs

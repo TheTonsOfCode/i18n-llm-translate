@@ -4,8 +4,8 @@ import {
     TranslateNamespaceMissingTranslations,
     TranslateOptions
 } from "$/type";
-import {flattenObject, unflattenObject} from "$/util";
-import {defaultLogger} from "$/logger";
+import { flattenObject, unflattenObject } from "$/util";
+import { defaultLogger } from "$/logger";
 
 interface DeepLTranslationEntry {
     detected_source_language: string,
@@ -125,6 +125,23 @@ export function createDeepLTranslateEngine(config: DeepLConfig): TranslateEngine
             }
 
             return languagesTranslations;
+        },
+
+        estimatePrice(data: { charactersCount: number }): string | undefined {
+            const { charactersCount } = data;
+
+            if (charactersCount === 0) {
+                return undefined;
+            }
+
+            // DeepL API Pro pricing (as of 2025): €25 per 1M characters
+            const PRICE_PER_MILLION_CHARS = 20; // €
+            const CHARS_PER_MILLION = 1_000_000;
+
+            const millionsOfChars = charactersCount / CHARS_PER_MILLION;
+            const estimatedCost = millionsOfChars * PRICE_PER_MILLION_CHARS;
+
+            return `~${estimatedCost.toFixed(4)}€`;
         }
     }
 }

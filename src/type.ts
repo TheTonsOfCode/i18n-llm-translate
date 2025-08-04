@@ -71,6 +71,8 @@ export interface TranslateEngine {
         missingTranslations: TranslateNamespaceMissingTranslations,
         options: TranslateOptions
     ): Promise<TranslateEngineTranslateResult>;
+
+    estimatePrice?(data: {charactersCount: number}): string | undefined ;
 }
 
 export interface TranslationsByLanguage {

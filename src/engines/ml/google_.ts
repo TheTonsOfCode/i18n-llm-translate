@@ -123,6 +123,24 @@ export function createGoogleTranslateEngine(config: GoogleTranslateConfig): Tran
             }
 
             return languagesTranslations;
+        },
+
+        estimatePrice(data: { charactersCount: number }): string | undefined  {
+            const { charactersCount } = data;
+            
+            if (charactersCount === 0) {
+                return undefined;
+            }
+
+            // Google Cloud Translation API pricing (as of 2024):
+            // - $20 per 1M characters for text translation
+            const PRICE_PER_MILLION_CHARS = 20; // USD
+            const CHARS_PER_MILLION = 1_000_000;
+            
+            const millionsOfChars = charactersCount / CHARS_PER_MILLION;
+            const estimatedCost = millionsOfChars * PRICE_PER_MILLION_CHARS;
+            
+            return `~$${estimatedCost.toFixed(4)}`;
         }
     };
 }

@@ -202,6 +202,12 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             logger.info(` of which ${totalMissingTranslationCount} were missing`);
         }
         logger.info(`Total characters sent for translation: ${totalCharactersTranslated}`);
+        
+        // Show price estimation if engine supports it
+        if (engine.estimatePrice && totalCharactersTranslated > 0) {
+            const priceEstimate = engine.estimatePrice({ charactersCount: totalCharactersTranslated });
+            if (priceEstimate) logger.info(`Estimated cost: ${priceEstimate}`);
+        }
 
         logger.success(`Translated and saved successfully in ${formatDuration(duration)}`);
     } else {
