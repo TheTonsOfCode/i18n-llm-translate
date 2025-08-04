@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default logger name as "🌐Translate"
 - Translate function, options parameter validation
 - Translate tests as multiple test files"
-
+- Added engine tests
 
 ---
 

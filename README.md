@@ -34,20 +34,3 @@ await translate(engine, {
     verbose: true   // Enable verbose logs
 });
 ```
-
-#### Custom Logger
-```javascript
-const { DefaultTranslateLogger } = require('i18n-llm-translate/logger');
-
-const customLogger = new DefaultTranslateLogger({
-    debug: true,
-    verbose: true,
-    prefix: '🔧 My Translation Tool',
-    enableColors: true
-});
-
-await translate(engine, {
-    // ... other options
-    logger: customLogger
-});
-```
