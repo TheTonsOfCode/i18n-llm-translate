@@ -3,6 +3,10 @@ Engine: maxRetriesOnEngineValidationError, do retries on certain engine type val
 
 Walking util
 
+Gracefully handle:
+  - 401 - put some random uuid in test and check for 401 return
+  - 456 (DeepL), or other code for some other providers, when we go out of funds
+
 ### Tests:
 - locale/ directories with dummy-engine
 - openai engine tests

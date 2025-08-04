@@ -7,7 +7,7 @@ describe('Translation Engines', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    // vi.spyOn(console, 'log').mockImplementation(() => {})
     engines = getMockEngines()
   })
 

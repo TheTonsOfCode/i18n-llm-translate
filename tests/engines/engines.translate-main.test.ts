@@ -12,7 +12,7 @@ describe('Translation Main Function', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    // vi.spyOn(console, 'log').mockImplementation(() => {})
     engines = getMockEngines()
     
     // Set TEST_ENGINES environment variable to allow dummy engine in main translate function
