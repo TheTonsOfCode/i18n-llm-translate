@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Translate function, options parameter validation
 - Translate tests as multiple test files"
 - Added engine tests
+- Counting translations keys and count of characters sent to translation 
 
 ---
 

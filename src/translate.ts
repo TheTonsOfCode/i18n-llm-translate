@@ -1,10 +1,10 @@
-import {readTranslationsCache} from "$/cache";
-import {cleanLanguagesDirectory, cleanNamespaces} from "$/cleaner";
-import {applyEngineTranslations, readTranslationsNamespaces} from "$/namespace";
-import {TranslateEngine, TranslateOptions} from "$/type";
-import {clearNullsFromResult, countTranslatedKeys, formatDuration} from "$/util";
-import {defaultLogger} from "$/logger";
-import {createCacheTranslateEngine} from "$/engines/cache";
+import { readTranslationsCache } from "$/cache";
+import { cleanLanguagesDirectory, cleanNamespaces } from "$/cleaner";
+import { applyEngineTranslations, readTranslationsNamespaces } from "$/namespace";
+import { TranslateEngine, TranslateOptions } from "$/type";
+import { clearNullsFromResult, countTranslatedKeys, countTranslatedCharacters, countKeysInObject, countMissingTranslationCharacters, formatDuration } from "$/util";
+import { defaultLogger } from "$/logger";
+import { createCacheTranslateEngine } from "$/engines/cache";
 import {
     validateTranslateOptions,
     generateLanguagesTranslateReturnZodSchema,
@@ -72,10 +72,19 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     logger.info(`Using engine: "${engine.name}"`);
 
     let dirty = false;
+    let totalBaseDifferencesCount = 0;
+    let totalBaseDifferencesTranslationCount = 0;
+    let totalMissingTranslationCount = 0;
     let totalCacheLoadedCount = 0;
+    let totalCharactersTranslated = 0;
+    let totalSourceKeysTranslated = 0;
 
     for (let namespace of namespaces) {
         const baseDifferences = cache.getBaseLanguageTranslationDifferences(namespace);
+
+        if (baseDifferences) {
+            totalBaseDifferencesCount += countKeysInObject(baseDifferences);
+        }
 
         if (baseDifferences) {
             dirty = true;
@@ -84,6 +93,11 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const engineResultSchema = generateLanguagesTranslateReturnZodSchema(options.targetLanguageCodes, baseDifferencesSchema);
 
             logger.info(`Translating base differences for namespace: "${namespace.jsonFileName}"`);
+
+            // Count characters and keys from source text being sent for translation
+            totalCharactersTranslated += countTranslatedCharacters(baseDifferences) * options.targetLanguageCodes.length;
+            totalSourceKeysTranslated += countKeysInObject(baseDifferences);
+
             const translationsResults = await engine.translate(baseDifferences, options);
 
             const engineCheck = engineResultSchema.safeParse(translationsResults);
@@ -96,6 +110,8 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
                 logger.error(`Validation error:`, engineCheck.error.issues);
                 return;
             }
+
+            totalBaseDifferencesTranslationCount += countTranslatedKeys(translationsResults);
 
             applyEngineTranslations(namespace, translationsResults)
         }
@@ -116,8 +132,7 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const cleanedResult = clearNullsFromResult(translationsResults);
 
             // Count how many translations were loaded from cache
-            const cacheLoadedCount = countTranslatedKeys(cleanedResult);
-            totalCacheLoadedCount += cacheLoadedCount;
+            totalCacheLoadedCount += countTranslatedKeys(cleanedResult);
 
             applyEngineTranslations(namespace, cleanedResult);
         }
@@ -134,6 +149,15 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
 
             logger.info(`Translating missed translations for namespace: "${namespace.jsonFileName}"`);
             logger.debug(`Missed translations structure prepared`);
+
+            // Count characters and keys from source text being sent for translation
+            // For missing translations, we need to count characters multiplied by target languages that need them
+            totalCharactersTranslated += countMissingTranslationCharacters(
+                missed.baseLanguageTranslations,
+                missed.targetLanguageTranslationsKeys
+            );
+            totalSourceKeysTranslated += countKeysInObject(missed.baseLanguageTranslations);
+
             // `baseLanguageTranslations` contains merged missing translations, regardless of the language,
             // while avoiding duplicates. This reduces the required context, leading to lower token consumption.
             const translationsResults = await engine.translateMissed(missed, options);
@@ -141,12 +165,14 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
             const engineCheck = engineResultSchema.safeParse(translationsResults);
 
             // TODO: RETRIES
-            
+
             if (!engineCheck.success) {
                 logger.error(`Engine does not returned proper translation structure!`);
                 logger.error(`Validation error:`, engineCheck.error.issues);
                 return;
             }
+
+            totalMissingTranslationCount += countTranslatedKeys(translationsResults);
 
             applyEngineTranslations(namespace, translationsResults)
         }
@@ -169,6 +195,14 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
         }
 
         const duration = Date.now() - startTime;
+
+        logger.info(`Total source keys sent for translation: ${totalSourceKeysTranslated}`);
+        logger.info(`Total translations processed: ${totalBaseDifferencesTranslationCount + totalMissingTranslationCount}`);
+        if (totalMissingTranslationCount) {
+            logger.info(` of which ${totalMissingTranslationCount} were missing`);
+        }
+        logger.info(`Total characters sent for translation: ${totalCharactersTranslated}`);
+
         logger.success(`Translated and saved successfully in ${formatDuration(duration)}`);
     } else {
         const duration = Date.now() - startTime;

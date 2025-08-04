@@ -151,6 +151,117 @@ export function countTranslatedKeys(result: TranslateEngineTranslateResult): num
     return totalCount;
 }
 
+export function countTranslatedCharacters(obj: any): number {
+    function countInObject(obj: any): number {
+        if (!obj || typeof obj !== 'object') {
+            return 0;
+        }
+
+        let count = 0;
+
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const value = obj[key];
+
+                if (typeof value === 'string') {
+                    // Count characters in translation value
+                    count += value.length;
+                } else if (typeof value === 'object' && value !== null) {
+                    // This is a nested object, count recursively
+                    count += countInObject(value);
+                }
+            }
+        }
+
+        return count;
+    }
+
+    return countInObject(obj);
+}
+
+export function countKeysInObject(obj: any): number {
+    function countInObject(obj: any): number {
+        if (!obj || typeof obj !== 'object') {
+            return 0;
+        }
+
+        let count = 0;
+
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const value = obj[key];
+
+                if (typeof value === 'string') {
+                    // This is a translation key
+                    count++;
+                } else if (typeof value === 'object' && value !== null) {
+                    // This is a nested object, count recursively
+                    count += countInObject(value);
+                }
+            }
+        }
+
+        return count;
+    }
+
+    return countInObject(obj);
+}
+
+export function countMissingTranslationCharacters(
+    baseLanguageTranslations: Record<string, any>,
+    targetLanguageTranslationsKeys: Record<string, any>
+): number {
+    function countCharactersForPath(
+        basePath: string,
+        baseObj: any,
+        targetLanguages: Record<string, any>
+    ): number {
+        if (typeof baseObj === 'string') {
+            // Count how many target languages need this translation
+            let languageCount = 0;
+            for (const languageCode in targetLanguages) {
+                if (hasPathInObject(targetLanguages[languageCode], basePath)) {
+                    languageCount++;
+                }
+            }
+            return baseObj.length * languageCount;
+        }
+
+        if (typeof baseObj === 'object' && baseObj !== null) {
+            let totalChars = 0;
+            for (const key in baseObj) {
+                if (baseObj.hasOwnProperty(key)) {
+                    const newPath = basePath ? `${basePath}.${key}` : key;
+                    totalChars += countCharactersForPath(newPath, baseObj[key], targetLanguages);
+                }
+            }
+            return totalChars;
+        }
+
+        return 0;
+    }
+
+    return countCharactersForPath('', baseLanguageTranslations, targetLanguageTranslationsKeys);
+}
+
+function hasPathInObject(obj: any, path: string): boolean {
+    if (!obj || typeof obj !== 'object') {
+        return false;
+    }
+
+    const keys = path.split('.');
+    let current = obj;
+
+    for (const key of keys) {
+        if (!current.hasOwnProperty(key)) {
+            return false;
+        }
+        current = current[key];
+    }
+
+    return true;
+}
+
 export function formatDuration(ms: number): string {
     if (ms < 1000) {
         return `${ms}ms`;
