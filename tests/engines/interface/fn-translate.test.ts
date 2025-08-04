@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getMockEngines } from './shared'
+import { getMockEngines } from '../shared'
 import { TranslateEngine } from '$/type'
 
 describe('Translation Engines', () => {
