@@ -1,0 +1,9 @@
+{
+    "test.json": {
+        "test": {
+            ".en": "Test",
+            "ja": "Test JP",
+            "pl": "Test PL"
+        }
+    }
+}
