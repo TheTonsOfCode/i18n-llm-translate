@@ -1,0 +1,58 @@
+{
+	"status": {
+		"pending": "Order pending",
+		"confirmed": "Order confirmed",
+		"preparing": "Kitchen is preparing your order",
+		"ready": "Order ready for pickup",
+		"delivered": "Order delivered",
+		"cancelled": "Order cancelled"
+	},
+	"table_service": {
+		"seating": {
+			"table_ready": "Your table is ready",
+			"wait_time": "Estimated wait time: {{minutes}} minutes",
+			"party_size": "Party of {{guests}}",
+			"table_number": "Table {{number}}",
+			"section": "{{section}} section"
+		},
+		"service": {
+			"server_assigned": "Your server is {{server_name}}",
+			"order_taken": "Order taken at {{time}}",
+			"kitchen_time": "Kitchen preparation time: {{minutes}} minutes",
+			"check_ready": "Check is ready",
+			"payment_processing": "Processing payment"
+		}
+	},
+	"takeout": {
+		"order_placed": "Takeout order placed successfully",
+		"pickup_time": "Ready for pickup at {{time}}",
+		"pickup_instructions": "Please come to the takeout counter",
+		"order_number": "Your order number is {{number}}",
+		"payment_required": "Payment required upon pickup"
+	},
+	"delivery": {
+		"address_confirmed": "Delivery address: {{address}}",
+		"driver_assigned": "Driver {{driver_name}} assigned",
+		"estimated_arrival": "Estimated delivery: {{time}}",
+		"out_for_delivery": "Order is out for delivery",
+		"delivery_fee": "Delivery fee: ${{fee}}",
+		"minimum_order": "Minimum order for delivery: ${{amount}}"
+	},
+	"modifications": {
+		"no_onions": "No onions",
+		"extra_cheese": "Extra cheese (+${{price}})",
+		"on_side": "Sauce on the side",
+		"well_done": "Well done",
+		"rare": "Rare",
+		"gluten_free": "Gluten-free option (+${{price}})",
+		"vegan_substitute": "Vegan substitute available"
+	},
+	"order_total": "Order total: ${{amount}}",
+	"tax_included": "Tax included: ${{tax}}",
+	"tip_suggested": "Suggested tip: {{percentage}}% (${{amount}})",
+	"payment_methods": "We accept cash, credit cards, and mobile payments",
+	"receipt_email": "Receipt sent to {{email}}",
+	"loyalty_points": "You earned {{points}} loyalty points!",
+	"discount_applied": "{{discount_name}} discount applied: -${{amount}}",
+	"coupon_valid": "Coupon {{code}} applied successfully"
+}

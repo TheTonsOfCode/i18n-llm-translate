@@ -1,0 +1,39 @@
+{
+	"species_info": {
+		"lion": "Lion",
+		"elephant": "Elephant",
+		"giraffe": "Giraffe",
+		"zebra": "Zebra",
+		"monkey": "Monkey",
+		"tiger": "Tiger",
+		"bear": "Bear",
+		"penguin": "Penguin",
+		"flamingo": "Flamingo"
+	},
+	"animal_care": {
+		"feeding_time": "Feeding time for {{animal_name}} is at {{time}}",
+		"last_checkup": "Last veterinary checkup: {{date}}",
+		"next_appointment": "Next appointment scheduled for {{date}} at {{time}}",
+		"health_status": "Health status: {{status}}",
+		"diet_requirements": "Special dietary requirements: {{requirements}}",
+		"medication_schedule": "{{animal_name}} receives {{medication}} every {{frequency}}",
+		"weight_tracking": "Current weight: {{weight}}kg ({{change}} from last month)"
+	},
+	"habitat_management": {
+		"temperature": "Temperature: {{temp}}°C",
+		"humidity": "Humidity: {{humidity}}%",
+		"cleaning_schedule": "Cleaning schedule: {{frequency}}",
+		"maintenance_required": "Maintenance required for {{area}} by {{date}}",
+		"capacity": "Maximum capacity: {{max_animals}} animals",
+		"current_occupancy": "Current occupancy: {{current}} of {{max}} animals",
+		"last_cleaned": "Last cleaned: {{date}} by {{staff_member}}",
+		"next_inspection": "Next inspection due: {{date}}"
+	},
+	"visitor_interaction": {
+		"feeding_allowed": "Visitor feeding allowed",
+		"viewing_hours": "Viewing hours",
+		"educational_program": "Educational program available",
+		"photo_opportunities": "Photo opportunities",
+		"safety_distance": "Minimum safety distance"
+	}
+}

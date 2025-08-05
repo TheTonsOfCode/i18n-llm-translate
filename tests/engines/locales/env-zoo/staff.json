@@ -1,0 +1,44 @@
+{
+	"roles": {
+		"zookeeper": "Zookeeper",
+		"veterinarian": "Veterinarian",
+		"tour_guide": "Tour guide",
+		"security": "Security officer",
+		"maintenance": "Maintenance worker",
+		"cashier": "Cashier",
+		"manager": "Zoo manager",
+		"educator": "Education specialist"
+	},
+	"daily_tasks": {
+		"morning_rounds": "Morning animal rounds",
+		"feeding_schedule": "Execute feeding schedule",
+		"habitat_cleaning": "Habitat cleaning and maintenance",
+		"visitor_assistance": "Assist visitors with questions",
+		"safety_inspection": "Conduct safety inspections",
+		"record_keeping": "Update animal care records",
+		"equipment_check": "Check and maintain equipment",
+		"end_of_day_report": "Complete end-of-day report"
+	},
+	"emergency_protocols": {
+		"animal_escape": "Animal escape procedure",
+		"medical_emergency": "Medical emergency response",
+		"fire_evacuation": "Fire evacuation plan",
+		"severe_weather": "Severe weather protocol",
+		"power_outage": "Power outage procedures",
+		"visitor_incident": "Visitor incident response"
+	},
+	"training": {
+		"animal_handling": "Animal handling certification",
+		"first_aid": "First aid training",
+		"safety_protocols": "Safety protocol updates",
+		"customer_service": "Customer service training",
+		"equipment_operation": "Equipment operation certification"
+	},
+	"communication": {
+		"radio_check": "Radio communication check",
+		"shift_handover": "Shift handover notes",
+		"incident_report": "File incident report",
+		"maintenance_request": "Submit maintenance request",
+		"supply_order": "Request supplies"
+	}
+}

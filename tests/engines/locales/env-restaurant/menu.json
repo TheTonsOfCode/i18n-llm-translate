@@ -1,0 +1,48 @@
+{
+	"appetizers": {
+		"bruschetta": "Fresh bruschetta with tomatoes and basil",
+		"calamari": "Crispy fried calamari rings",
+		"wings": "Buffalo wings with {{sauce_type}} sauce",
+		"nachos": "Loaded nachos for {{people}} people",
+		"soup_daily": "Today's soup special: {{soup_name}}",
+		"salad_caesar": "Classic Caesar salad",
+		"shrimp_cocktail": "Jumbo shrimp cocktail",
+		"cheese_board": "Artisan cheese selection"
+	},
+	"mains": {
+		"steak_ribeye": "{{weight}}oz ribeye steak cooked {{temperature}}",
+		"salmon_grilled": "Grilled Atlantic salmon with lemon",
+		"pasta_carbonara": "Traditional carbonara with {{cheese_type}}",
+		"burger_classic": "{{patty_type}} burger with fries",
+		"chicken_parmesan": "Breaded chicken parmesan",
+		"pizza_margherita": "Wood-fired margherita pizza",
+		"risotto_mushroom": "Creamy mushroom risotto",
+		"fish_chips": "Beer-battered fish and chips",
+		"lamb_rack": "Herb-crusted rack of lamb",
+		"vegetarian_bowl": "Seasonal vegetarian power bowl"
+	},
+	"desserts": {
+		"tiramisu": "Classic Italian tiramisu",
+		"cheesecake": "New York style cheesecake",
+		"chocolate_cake": "Decadent chocolate layer cake",
+		"ice_cream": "{{flavor}} ice cream with {{toppings}}",
+		"fruit_tart": "Seasonal fruit tart"
+	},
+	"beverages": {
+		"coffee_espresso": "Single shot espresso",
+		"coffee_latte": "{{size}} latte with {{milk_type}} milk",
+		"tea_selection": "Premium tea selection",
+		"wine_red": "House red wine - {{wine_name}}",
+		"wine_white": "House white wine - {{wine_name}}",
+		"beer_draft": "Draft beer selection",
+		"cocktail_signature": "{{cocktail_name}} - our signature cocktail",
+		"juice_fresh": "Fresh {{fruit}} juice",
+		"soda_selection": "Soft drink selection"
+	},
+	"daily_special": "Today's special: {{dish_name}} for only ${{price}}",
+	"chef_recommendation": "Chef {{chef_name}} recommends the {{dish}} - a perfect blend of {{ingredients}}",
+	"allergy_warning": "Please inform your server of any allergies. Items marked with * contain {{allergen}}",
+	"cooking_time": "Estimated preparation time: {{minutes}} minutes",
+	"spice_level": "Spice level: {{level}} out of 5",
+	"seasonal_note": "This item is available seasonally from {{start_month}} to {{end_month}}"
+}

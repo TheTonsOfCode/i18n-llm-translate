@@ -1,0 +1,43 @@
+{
+	"african_savanna": {
+		"title": "African Savanna",
+		"description": "Experience the majesty of African wildlife in our expansive savanna exhibit",
+		"featured_animals": "Lions, elephants, giraffes, and zebras",
+		"viewing_platform": "Elevated viewing platform available",
+		"feeding_show": "Daily feeding demonstration at 2:00 PM",
+		"educational_facts": "Learn about conservation efforts in Africa"
+	},
+	"tropical_rainforest": {
+		"title": "Tropical Rainforest",
+		"description": "Journey through a lush rainforest environment",
+		"climate_controlled": "Climate-controlled environment",
+		"bird_walkthrough": "Walk-through bird aviary",
+		"waterfall_feature": "Spectacular waterfall centerpiece",
+		"guided_tours": "Guided tours available hourly"
+	},
+	"arctic_zone": {
+		"title": "Arctic Zone",
+		"description": "Discover polar wildlife in our frozen wonderland",
+		"temperature": "Maintained at sub-zero temperatures",
+		"underwater_viewing": "Underwater viewing tunnel for polar bears",
+		"penguin_colony": "Large penguin colony with breeding program",
+		"ice_cave": "Walk-through ice cave experience"
+	},
+	"reptile_house": {
+		"title": "Reptile House",
+		"description": "Explore the fascinating world of reptiles and amphibians",
+		"snake_collection": "Extensive snake collection from around the world",
+		"interactive_displays": "Interactive educational displays",
+		"feeding_schedule": "Public feeding sessions twice daily",
+		"temperature_zones": "Multiple climate zones for different species"
+	},
+	"childrens_zoo": {
+		"title": "Children's Petting Zoo",
+		"description": "Hands-on experience with friendly farm animals",
+		"petting_area": "Safe petting and interaction area",
+		"pony_rides": "Pony rides available on weekends",
+		"educational_programs": "Special educational programs for schools",
+		"birthday_parties": "Birthday party packages available",
+		"supervision_required": "Adult supervision required for children under 8"
+	}
+}

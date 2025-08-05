@@ -1,0 +1,64 @@
+{
+	"roles": {
+		"manager": "Restaurant Manager",
+		"chef": "Head Chef",
+		"sous_chef": "Sous Chef",
+		"line_cook": "Line Cook",
+		"server": "Server",
+		"bartender": "Bartender",
+		"host": "Host/Hostess",
+		"busser": "Busser"
+	},
+	"shifts": {
+		"morning": "Morning shift ({{start_time}} - {{end_time}})",
+		"afternoon": "Afternoon shift",
+		"evening": "Evening shift",
+		"closing": "Closing shift",
+		"double": "Double shift",
+		"split": "Split shift"
+	},
+	"tasks": {
+		"opening": {
+			"unlock_doors": "Unlock restaurant doors",
+			"turn_on_lights": "Turn on all lights",
+			"start_equipment": "Start kitchen equipment",
+			"check_inventory": "Check inventory levels",
+			"prep_stations": "Set up prep stations",
+			"review_reservations": "Review today's reservations"
+		},
+		"service": {
+			"greet_customers": "Greet customers warmly",
+			"take_orders": "Take customer orders accurately",
+			"serve_food": "Serve food promptly",
+			"check_satisfaction": "Check customer satisfaction",
+			"process_payments": "Process payments",
+			"clean_tables": "Clean and reset tables"
+		},
+		"closing": {
+			"clean_kitchen": "Deep clean kitchen areas",
+			"count_register": "Count cash register",
+			"secure_building": "Secure building",
+			"turn_off_equipment": "Turn off all equipment",
+			"complete_checklist": "Complete closing checklist"
+		}
+	},
+	"communication": {
+		"order_ready": "Order for table {{table}} is ready",
+		"special_request": "Special request from table {{table}}: {{request}}",
+		"complaint_received": "Customer complaint: {{issue}}",
+		"reservation_change": "Reservation change for {{name}} - {{details}}",
+		"inventory_low": "{{item}} inventory is running low",
+		"equipment_issue": "{{equipment}} needs maintenance"
+	},
+	"training": {
+		"food_safety": "Food safety certification required",
+		"customer_service": "Customer service training completed",
+		"pos_system": "POS system training",
+		"wine_knowledge": "Wine service training",
+		"allergy_awareness": "Allergy awareness training"
+	},
+	"schedule_note": "{{employee_name}} is scheduled for {{shift_type}} on {{date}}",
+	"performance_review": "{{employee_name}}'s performance review scheduled for {{date}}",
+	"overtime_approval": "Overtime hours ({{hours}}) approved for {{employee_name}}",
+	"break_reminder": "{{employee_name}} - break time in {{minutes}} minutes"
+}
