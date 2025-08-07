@@ -17,6 +17,7 @@
     "test:engine:dummy": "TEST_ENGINES=dummy vitest run tests/engines/",
     "test:engine:all": "TEST_ENGINES=* vitest run tests/engines/",
     "test:engines": "TEST_ENGINES=deepl,openai,claude,google vitest run tests/engines/",
+    "test:heavy-load": "TEST_HEAVY_LOAD=true TEST_ENGINES=dummy TEST_ENVIRONMENTS=zoo,restaurant vitest run tests/engines/locales/heavy-load.test.ts",
     "lint": "eslint src/ tests/ --ext .ts",
     "lint:fix": "eslint src/ tests/ --ext .ts --fix"
   },
