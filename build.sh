@@ -19,4 +19,17 @@ echo "TypeScript compilation successful."
 echo "Copying basic files to the 'dist' directory..."
 cp package.json README.md CHANGELOG.md dist
 
+cd dist
+node -e '
+const fs = require("fs");
+const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
+
+delete pkg.private;
+delete pkg.scripts;
+delete pkg.devDependencies;
+
+fs.writeFileSync("./package.json", JSON.stringify(pkg, null, 2));
+'
+cd ..
+
 echo "Build process completed successfully."
