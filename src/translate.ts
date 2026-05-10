@@ -1,6 +1,6 @@
 import { readTranslationsCache } from "$/cache";
 import { cleanLanguagesDirectory, cleanNamespaces } from "$/cleaner";
-import { applyEngineTranslations, readTranslationsNamespaces } from "$/namespace";
+import { applyEngineTranslations, readTranslationsNamespaces, stripEmptyStringLeavesFromDiff } from "$/namespace";
 import { TranslateEngine, TranslateOptions } from "$/type";
 import { clearNullsFromResult, countTranslatedKeys, countTranslatedCharacters, countKeysInObject, countMissingTranslationCharacters, formatDuration } from "$/util";
 import { defaultLogger } from "$/logger";
@@ -80,13 +80,17 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     let totalSourceKeysTranslated = 0;
 
     for (let namespace of namespaces) {
-        const baseDifferences = cache.getBaseLanguageTranslationDifferences(namespace);
+        let baseDifferences = cache.getBaseLanguageTranslationDifferences(namespace);
 
         if (baseDifferences) {
-            totalBaseDifferencesCount += countKeysInObject(baseDifferences);
+            baseDifferences = stripEmptyStringLeavesFromDiff(baseDifferences, namespace);
+            if (namespace.targetLanguages.some(tl => tl.dirty)) {
+                dirty = true;
+            }
         }
 
         if (baseDifferences) {
+            totalBaseDifferencesCount += countKeysInObject(baseDifferences);
             dirty = true;
 
             const baseDifferencesSchema = generateTranslationsZodSchema(baseDifferences);

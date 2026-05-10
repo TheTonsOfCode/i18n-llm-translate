@@ -23,8 +23,6 @@ function validateTranslationStructure(content: any): void {
             validateTranslationStructure(content[key]);
         } else if (typeof content[key] !== 'string') {
             throw new Error(`Translation# Invalid value for key '${key}': Only strings are allowed as values.`);
-        } else if (!content[key].trim()) {
-            throw new Error(`Translation# Invalid value for key '${key}': Values cannot be empty strings`);
         }
     }
 }
@@ -42,6 +40,54 @@ function cleanTargetTranslations(baseContent: any, targetContent: any): any {
         }
     }
     return cleanedContent;
+}
+
+function getLeafAtPath(root: any, path: string[]): any {
+    let cur = root;
+    for (const k of path) {
+        if (cur == null || typeof cur !== 'object') return undefined;
+        cur = cur[k];
+    }
+    return cur;
+}
+
+function setLeafAtPath(root: any, path: string[], value: string): void {
+    let cur = root;
+    for (let i = 0; i < path.length - 1; i++) {
+        const k = path[i];
+        if (!cur[k] || typeof cur[k] !== 'object') cur[k] = {};
+        cur = cur[k];
+    }
+    cur[path[path.length - 1]] = value;
+}
+
+/** Removes trim-empty string leaves from a base-language diff; copies those values to all targets (no API). */
+export function stripEmptyStringLeavesFromDiff(
+    diff: Record<string, any>,
+    namespace: TranslateNamespace,
+    path: string[] = []
+): Record<string, any> | undefined {
+    const result: Record<string, any> = {};
+    for (const key of Object.keys(diff)) {
+        const val = diff[key];
+        const nextPath = [...path, key];
+        if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+            const inner = stripEmptyStringLeavesFromDiff(val, namespace, nextPath);
+            if (inner && Object.keys(inner).length > 0) {
+                result[key] = inner;
+            }
+        } else if (typeof val === 'string' && val.trim() === '') {
+            for (const tl of namespace.targetLanguages) {
+                if (getLeafAtPath(tl.translations, nextPath) !== val) {
+                    setLeafAtPath(tl.translations, nextPath, val);
+                    tl.dirty = true;
+                }
+            }
+        } else {
+            result[key] = val;
+        }
+    }
+    return Object.keys(result).length > 0 ? result : undefined;
 }
 
 export async function readTranslationsNamespaces(options: TranslateOptions): Promise<TranslateNamespace[]> {
@@ -130,8 +176,11 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                                 // Dig target languages
                                 const targetDig: TranslateNamespace['targetLanguages'] = []
                                 for (let { translations, ...rest } of targetLanguagesTranslations) {
+                                    const sub = translations[key];
                                     targetDig.push({
-                                        translations: translations[key] || {},
+                                        translations: typeof sub === 'object' && sub !== null && !Array.isArray(sub)
+                                            ? sub
+                                            : {},
                                         ...rest
                                     })
                                 }
@@ -146,9 +195,19 @@ export async function readTranslationsNamespaces(options: TranslateOptions): Pro
                                 continue;
                             }
 
+                            if (typeof value === 'string' && value.trim() === '') {
+                                for (let languageContainer of targetLanguagesTranslations) {
+                                    if (languageContainer.translations[key] !== value) {
+                                        languageContainer.translations[key] = value;
+                                        languageContainer.dirty = true;
+                                    }
+                                }
+                                continue;
+                            }
+
                             let foundMissed = false;
                             for (let languageContainer of targetLanguagesTranslations) {
-                                if (!languageContainer.translations[key]) {
+                                if (!(key in languageContainer.translations)) {
                                     foundMissed = true;
                                     // Empty string, we need it just to create schema
                                     getTargetContainer(languageContainer.languageCode)[key] = '';

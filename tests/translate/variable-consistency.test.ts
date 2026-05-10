@@ -7,7 +7,14 @@ import {createMockLogger} from "../mock";
 // Mock dependencies
 vi.mock('$/cache')
 vi.mock('$/cleaner')
-vi.mock('$/namespace')
+vi.mock('$/namespace', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('$/namespace')>()
+    return {
+        ...actual,
+        readTranslationsNamespaces: vi.fn(),
+        applyEngineTranslations: vi.fn(),
+    }
+})
 vi.mock('$/util')
 vi.mock('$/engines/cache')
 
