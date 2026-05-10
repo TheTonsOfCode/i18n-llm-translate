@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.1] - 2026-01-18
+
+- Fixed DeepL authentication (November 2025: Deprecation of query parameter and request body authentication)
+
 ## [1.7.0] - 2025-08-04
 
 - "translate" function moved from index.ts to translate.ts

@@ -30,7 +30,6 @@ export function createDeepLTranslateEngine(config: DeepLConfig): TranslateEngine
     async function fetchTranslations(targetLanguageCode: string, translations: string[], options: TranslateOptions): Promise<DeepLSuccessResult> {
         const bodyParams = new URLSearchParams();
 
-        bodyParams.append('auth_key', config.apiKey);
         bodyParams.append('source_lang', options.baseLanguageCode.toUpperCase());
         bodyParams.append('target_lang', targetLanguageCode.toUpperCase());
 
@@ -39,6 +38,7 @@ export function createDeepLTranslateEngine(config: DeepLConfig): TranslateEngine
         const result = await fetch(`${API_BASE}translate`, {
             body: bodyParams,
             headers: {
+                'Authorization': `DeepL-Auth-Key ${config.apiKey}`,
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             method: 'POST',
