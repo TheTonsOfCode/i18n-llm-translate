@@ -10,6 +10,7 @@ import {
     generateLanguagesTranslateReturnZodSchema,
     generateTranslationsZodSchema
 } from "$/validation";
+import { isBreakSilentError } from "$/break-silent-error";
 
 export async function translate(engine: TranslateEngine, options: TranslateOptions) {
     if (!process.env.TEST_ENGINES && engine.type !== 'llm' && engine.type !== 'ml') {
@@ -50,6 +51,23 @@ export async function translate(engine: TranslateEngine, options: TranslateOptio
     }
     if (options.maxRetriesOnEngineValidationError === undefined) options.maxRetriesOnEngineValidationError = 3;
     if (!options.retryOnEngineValidationErrorFor) options.retryOnEngineValidationErrorFor = 'llm-only';
+
+    try {
+        await runTranslatePipeline(engine, options, startTime);
+    } catch (e) {
+        if (isBreakSilentError(e)) {
+            logger.error(e.message);
+            if (options.verboseEngineErrors) {
+                throw e;
+            }
+            return;
+        }
+        throw e;
+    }
+}
+
+async function runTranslatePipeline(engine: TranslateEngine, options: TranslateOptions, startTime: number): Promise<void> {
+    const logger = options.logger || defaultLogger;
 
     let namespaces = await readTranslationsNamespaces(options);
 

@@ -43,6 +43,11 @@ export interface TranslateOptions {
     debug?: boolean;
     verbose?: boolean;
     logger?: TranslateLogger;
+
+    /**
+     * When true, translate() logs BreakSilentError.originalError with logger.error.
+     */
+    verboseEngineErrors?: boolean;
 }
 
 export interface TranslateEngineTranslateResult {

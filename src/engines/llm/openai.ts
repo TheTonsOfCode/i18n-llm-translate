@@ -6,10 +6,61 @@ import {
 } from "$/type";
 import { flattenObject, unflattenObject } from "$/util";
 import { defaultLogger } from "$/logger";
-import { OpenAI } from 'openai';
+import OpenAI, { APIError, APIConnectionTimeoutError, RateLimitError } from 'openai';
+import { BreakSilentError, isBreakSilentError } from '$/break-silent-error';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import ISO6391 from 'iso-639-1';
+
+function rateLimitApiErrorFromChain(error: unknown): APIError | null {
+    let e: unknown = error;
+    const seen = new Set<unknown>();
+    while (e instanceof Error && !seen.has(e)) {
+        seen.add(e);
+        if (e instanceof RateLimitError) return e;
+        if (e instanceof APIError && e.status === 429) return e;
+        if (e instanceof APIError && (e.code === 'insufficient_quota' || e.code === 'rate_limit_exceeded')) {
+            return e;
+        }
+        e = (e as Error & { cause?: unknown }).cause;
+    }
+    return null;
+}
+
+/** Billing / monthly quota — retrying will not help. */
+export function isOpenAIInsufficientQuotaError(error: unknown): boolean {
+    const api = rateLimitApiErrorFromChain(error);
+    const nested = api?.error as { code?: string } | undefined;
+    const code = api?.code ?? nested?.code;
+    if (code === 'insufficient_quota') return true;
+    const msg = error instanceof Error ? error.message : '';
+    if (/exceeded your current quota|check your plan and billing/i.test(msg)) return true;
+    return false;
+}
+
+/** @deprecated Use {@link isBreakSilentError} */
+export function isOpenAIEngineNonRetryableError(error: unknown): boolean {
+    return isBreakSilentError(error);
+}
+
+function isTransientOpenAIRateLimit(error: unknown): boolean {
+    if (isOpenAIInsufficientQuotaError(error)) return false;
+    if (rateLimitApiErrorFromChain(error)?.code === 'rate_limit_exceeded') return true;
+    const api = rateLimitApiErrorFromChain(error);
+    if (api && api.status === 429) return true;
+    if (error instanceof Error && /^429(\s|$)/.test(error.message)) return true;
+    return false;
+}
+
+function headerValue(headers: unknown, name: string): string | undefined {
+    if (headers == null) return undefined;
+    const h = headers as { get?: (n: string) => string | null };
+    if (typeof h.get === 'function') {
+        return h.get(name) ?? undefined;
+    }
+    const found = Object.keys(headers as object).find(k => k.toLowerCase() === name.toLowerCase());
+    return found ? String((headers as Record<string, string>)[found]) : undefined;
+}
 
 function toLanguagesContext(baseLanguageCode: string, languages: string[]) {
     const getLanguageName = (code: string) => {
@@ -121,6 +172,22 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    function computeRateLimitWaitMs(error: unknown): number {
+        const apiErr = rateLimitApiErrorFromChain(error);
+        const headers = apiErr?.headers ?? (error as APIError)?.headers;
+        const retryAfterMsRaw = headerValue(headers, 'retry-after-ms');
+        if (retryAfterMsRaw) {
+            const n = parseInt(retryAfterMsRaw, 10);
+            if (!Number.isNaN(n)) return n * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY;
+        }
+        const retryAfterSecRaw = headerValue(headers, 'retry-after');
+        if (retryAfterSecRaw) {
+            const n = parseInt(retryAfterSecRaw, 10);
+            if (!Number.isNaN(n)) return n * 1000 * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY;
+        }
+        return 1000 + RATE_LIMIT_EXTRA_DELAY;
+    }
+
     async function withRetry<T>(operation: () => Promise<T>, operationName: string, options: TranslateOptions): Promise<T> {
         const logger = options.logger || defaultLogger;
         let lastError: Error;
@@ -141,7 +208,14 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
             } catch (error) {
                 lastError = error as Error;
 
-                const isTimeout = error instanceof Error && (
+                if (isOpenAIInsufficientQuotaError(error)) {
+                    throw new BreakSilentError('OpenAI: insufficient quota / billing — not retrying.', error);
+                }
+
+                const isRateLimit = isTransientOpenAIRateLimit(error);
+
+                const isTimeout = !isRateLimit && error instanceof Error && (
+                    error instanceof APIConnectionTimeoutError ||
                     error.message.includes('timeout') ||
                     error.message.includes('ETIMEDOUT') ||
                     error.name === 'TimeoutError' ||
@@ -149,14 +223,9 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                     error.constructor.name === 'APIConnectionTimeoutError'
                 );
 
-                // Check if it's a rate limit error (429)
-                const isRateLimit = (error as any)?.status === 429;
-
                 if ((isTimeout || isRateLimit) && attempt < MAX_RETRIES) {
                     if (isRateLimit) {
-                        // Get retry-after-ms from headers and multiply by configured multiplier
-                        const retryAfterMs = (error as any)?.headers?.['retry-after-ms'];
-                        const waitTime = retryAfterMs ? parseInt(retryAfterMs) * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY : 1000; // Default 1s if no header
+                        const waitTime = computeRateLimitWaitMs(error);
 
                         logger.engineDebug('OpenAI', `Rate limit hit on attempt ${attempt}/${MAX_RETRIES}, waiting ${waitTime}ms before retry...`);
 

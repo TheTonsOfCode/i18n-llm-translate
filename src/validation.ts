@@ -19,7 +19,8 @@ const TranslateOptionsSchema = z.object({
     cleanup: z.boolean().optional(),
     debug: z.boolean().optional(),
     verbose: z.boolean().optional(),
-    logger: z.any().optional()
+    logger: z.any().optional(),
+    verboseEngineErrors: z.boolean().optional()
 });
 
 export function validateTranslateOptions(options: TranslateOptions): void {
