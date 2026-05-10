@@ -209,7 +209,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                 lastError = error as Error;
 
                 if (isOpenAIInsufficientQuotaError(error)) {
-                    throw new BreakSilentError('OpenAI: insufficient quota / billing — not retrying.', error);
+                    throw new BreakSilentError('OpenAI: insufficient quota / billing — not retrying. (or deprecated API Token)', error);
                 }
 
                 const isRateLimit = isTransientOpenAIRateLimit(error);
