@@ -108,7 +108,7 @@ function zeroPrice(message: string): EstimatePriceResult {
         outputCost: 0,
         totalCost: 0,
         currency: 'USD',
-        formatted: '$0.000000 (input: $0.000000, output: $0.000000)',
+        formatted: '? (input: ?, output: ?)',
         message
     };
 }
