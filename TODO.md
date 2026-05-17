@@ -109,3 +109,12 @@ Dirty on removed languages inside cache
 - Price estimates are automatically displayed in translation summary when using supported engines
 - Uses straightforward per-million-character calculation for easy cost estimation
 - Helps users understand potential costs before running large translation jobs
+
+### ✓ Add OpenAI Token Usage and Cost Estimation
+- OpenAI engine now collects prompt, completion, and total token usage from API responses
+- Translation summary displays total tokens used after a run
+- OpenAI pricing is estimated from actual token usage for supported models
+- Cost estimation uses an abstract estimate engine initialized before translation
+- First token cost estimate engine uses OpenRouter model pricing for OpenAI models
+- If pricing cannot be fetched, estimated cost is reported as 0 with a fetch failure message
+- Helps users see how much budget an OpenAI translation run consumed

@@ -88,9 +88,9 @@ async function runTranslatePipeline(engine: TranslateEngine, options: TranslateO
     cache.syncCacheWithNamespaces(namespaces, false);
 
     logger.info(`Using engine: "${engine.name}"`);
+    await engine.initializeEstimateEngine?.(options);
 
     let dirty = false;
-    let totalBaseDifferencesCount = 0;
     let totalBaseDifferencesTranslationCount = 0;
     let totalMissingTranslationCount = 0;
     let totalCacheLoadedCount = 0;
@@ -108,7 +108,6 @@ async function runTranslatePipeline(engine: TranslateEngine, options: TranslateO
         }
 
         if (baseDifferences) {
-            totalBaseDifferencesCount += countKeysInObject(baseDifferences);
             dirty = true;
 
             const baseDifferencesSchema = generateTranslationsZodSchema(baseDifferences);
@@ -225,9 +224,20 @@ async function runTranslatePipeline(engine: TranslateEngine, options: TranslateO
         }
         logger.info(`Total characters sent for translation: ${totalCharactersTranslated}`);
         
+        const usageStats = engine.getUsageStats?.();
+        if (usageStats?.totalTokens || usageStats?.inputTokens || usageStats?.outputTokens) {
+            const tokenDetails = [
+                usageStats.inputTokens !== undefined ? `input: ${usageStats.inputTokens}` : undefined,
+                usageStats.outputTokens !== undefined ? `output: ${usageStats.outputTokens}` : undefined,
+                usageStats.totalTokens !== undefined ? `total: ${usageStats.totalTokens}` : undefined
+            ].filter(Boolean).join(', ');
+
+            logger.info(`Total tokens used: ${tokenDetails}`);
+        }
+
         // Show price estimation if engine supports it
-        if (engine.estimatePrice && totalCharactersTranslated > 0) {
-            const priceEstimate = engine.estimatePrice({ charactersCount: totalCharactersTranslated });
+        if (engine.estimatePrice && (totalCharactersTranslated > 0 || usageStats)) {
+            const priceEstimate = await engine.estimatePrice({ charactersCount: totalCharactersTranslated, usageStats });
             if (priceEstimate) logger.info(`Estimated cost: ${priceEstimate}`);
         }
 

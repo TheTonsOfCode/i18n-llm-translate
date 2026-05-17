@@ -2,7 +2,11 @@ import {
     TranslateEngine,
     TranslateEngineTranslateResult,
     TranslateNamespaceMissingTranslations,
-    TranslateOptions, TranslationsByLanguage
+    TranslateOptions,
+    TranslateEngineCostEstimate,
+    TranslateEngineEstimateEngine,
+    TranslateEngineUsageStats,
+    TranslationsByLanguage
 } from "$/type";
 import { flattenObject, unflattenObject } from "$/util";
 import { defaultLogger } from "$/logger";
@@ -11,6 +15,7 @@ import { BreakSilentError, isBreakSilentError } from '$/break-silent-error';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import ISO6391 from 'iso-639-1';
+import { createOpenRouterCostEstimateEngine } from "$/engines/estimate";
 
 function rateLimitApiErrorFromChain(error: unknown): APIError | null {
     let e: unknown = error;
@@ -114,6 +119,12 @@ export interface OpenAIConfig {
     model?: OpenAIModel | (string & {});
 
     /**
+     * Optional OpenRouter models endpoint override for cost estimation.
+     * Default: https://openrouter.ai/api/v1/models
+     */
+    pricingUrl?: string;
+
+    /**
      * Max: 100
      * Min: 5
      * Default: 50
@@ -159,6 +170,16 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     const MAX_RETRIES = config.maxRetries || 10;
     const RATE_LIMIT_MULTIPLIER = config.rateLimitRetryMultiplier || 4;
     const RATE_LIMIT_EXTRA_DELAY = config.rateLimitRetryExtraDelay || 1200;
+    const usageStats: Required<TranslateEngineUsageStats> = {
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0
+    };
+    const estimateEngine: TranslateEngineEstimateEngine = createOpenRouterCostEstimateEngine({
+        provider: 'openai',
+        model,
+        apiUrl: config.pricingUrl
+    });
 
     const openai = new OpenAI({
         apiKey: config.apiKey,
@@ -186,6 +207,25 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
             if (!Number.isNaN(n)) return n * 1000 * RATE_LIMIT_MULTIPLIER + RATE_LIMIT_EXTRA_DELAY;
         }
         return 1000 + RATE_LIMIT_EXTRA_DELAY;
+    }
+
+    function addUsageStats(usage: { prompt_tokens?: number, completion_tokens?: number, total_tokens?: number } | undefined): void {
+        if (!usage) return;
+
+        usageStats.inputTokens += usage.prompt_tokens || 0;
+        usageStats.outputTokens += usage.completion_tokens || 0;
+        usageStats.totalTokens += usage.total_tokens || 0;
+    }
+
+    function formatCostEstimate(estimate: TranslateEngineCostEstimate): string {
+        const perToken = `input ${estimate.inputCostPerToken.toFixed(12)} ${estimate.currency}/token, output ${estimate.outputCostPerToken.toFixed(12)} ${estimate.currency}/token`;
+        const cost = `~$${estimate.totalCost.toFixed(6)} (input $${estimate.inputCost.toFixed(6)}, output $${estimate.outputCost.toFixed(6)}, ${perToken})`;
+
+        if (!estimate.pricingAvailable && estimate.message) {
+            return `${cost}; ${estimate.message}`;
+        }
+
+        return `${cost}; pricing source: ${estimate.source}`;
     }
 
     async function withRetry<T>(operation: () => Promise<T>, operationName: string, options: TranslateOptions): Promise<T> {
@@ -372,6 +412,7 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                         { role: 'user', content: JSON.stringify(chunk.baseTranslations) }
                     ]
                 });
+                addUsageStats(response.usage);
 
                 const translatedChunk = response.choices[0].message.parsed;
                 if (!translatedChunk) {
@@ -446,6 +487,28 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         type: 'llm',
 
         canBeTrustedWithVariablesTranslation: true,
+
+        async initializeEstimateEngine(): Promise<void> {
+            await estimateEngine.initialize();
+        },
+
+        getUsageStats(): TranslateEngineUsageStats | undefined {
+            if (usageStats.totalTokens === 0 && usageStats.inputTokens === 0 && usageStats.outputTokens === 0) {
+                return undefined;
+            }
+
+            return { ...usageStats };
+        },
+
+        estimatePrice(): string | undefined {
+            if (usageStats.inputTokens === 0 && usageStats.outputTokens === 0) {
+                return undefined;
+            }
+
+            const costEstimate = estimateEngine.estimateTokenCost(usageStats);
+
+            return formatCostEstimate(costEstimate);
+        },
 
         async translate(
             translations: Record<string, any>,

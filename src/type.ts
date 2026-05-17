@@ -54,6 +54,32 @@ export interface TranslateEngineTranslateResult {
     [key: string /*languageCode*/]: Record<string, any>;
 }
 
+export interface TranslateEngineUsageStats {
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+}
+
+export interface TranslateEngineCostEstimate {
+    currency: 'USD';
+    inputTokens: number;
+    outputTokens: number;
+    totalTokens: number;
+    inputCost: number;
+    outputCost: number;
+    totalCost: number;
+    inputCostPerToken: number;
+    outputCostPerToken: number;
+    source: string;
+    pricingAvailable: boolean;
+    message?: string;
+}
+
+export interface TranslateEngineEstimateEngine {
+    initialize(): Promise<void>;
+    estimateTokenCost(usageStats: TranslateEngineUsageStats): TranslateEngineCostEstimate;
+}
+
 export interface TranslateEngine {
 
     name: string;
@@ -77,7 +103,11 @@ export interface TranslateEngine {
         options: TranslateOptions
     ): Promise<TranslateEngineTranslateResult>;
 
-    estimatePrice?(data: {charactersCount: number}): string | undefined ;
+    getUsageStats?(): TranslateEngineUsageStats | undefined;
+
+    initializeEstimateEngine?(options: TranslateOptions): Promise<void>;
+
+    estimatePrice?(data: {charactersCount: number, usageStats?: TranslateEngineUsageStats}): string | undefined | Promise<string | undefined>;
 }
 
 export interface TranslationsByLanguage {
