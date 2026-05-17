@@ -6,6 +6,7 @@ import {
 } from "$/type";
 import {flattenObject, unflattenObject} from "$/util";
 import {defaultLogger} from "$/logger";
+import { EstimateUsage } from "$/engines/estimate/type";
 
 interface GoogleTranslateTextResult {
     translatedText: string;
@@ -125,8 +126,9 @@ export function createGoogleTranslateEngine(config: GoogleTranslateConfig): Tran
             return languagesTranslations;
         },
 
-        estimatePrice(data: { charactersCount: number }): string | undefined  {
-            const { charactersCount } = data;
+        estimatePrice(usage: EstimateUsage): string | undefined  {
+            if (!('charactersCount' in usage)) return undefined;
+            const { charactersCount } = usage;
             
             if (charactersCount === 0) {
                 return undefined;

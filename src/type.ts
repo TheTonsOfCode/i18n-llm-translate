@@ -1,4 +1,5 @@
 import {TranslateLogger} from "$/logger";
+import {EstimateEngineInitializeResult, EstimatePriceResult, EstimateUsage} from "$/engines/estimate/type";
 
 export type TranslateOptionsNamesMappingLanguagesCallback = (languageCode: string, options: TranslateOptions) => string;
 /**
@@ -77,7 +78,11 @@ export interface TranslateEngine {
         options: TranslateOptions
     ): Promise<TranslateEngineTranslateResult>;
 
-    estimatePrice?(data: {charactersCount: number}): string | undefined ;
+    initializeEstimate?(options: TranslateOptions): Promise<EstimateEngineInitializeResult>;
+
+    estimatePrice?(usage: EstimateUsage): string | EstimatePriceResult | undefined ;
+
+    getUsage?(): EstimateUsage;
 }
 
 export interface TranslationsByLanguage {

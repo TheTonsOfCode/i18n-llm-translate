@@ -11,6 +11,8 @@ import { BreakSilentError, isBreakSilentError } from '$/break-silent-error';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import ISO6391 from 'iso-639-1';
+import { createOpenRouterEstimateEngine } from "$/engines/estimate/openrouter";
+import { EstimateUsage, EstimateTokenUsage } from "$/engines/estimate/type";
 
 function rateLimitApiErrorFromChain(error: unknown): APIError | null {
     let e: unknown = error;
@@ -114,6 +116,12 @@ export interface OpenAIConfig {
     model?: OpenAIModel | (string & {});
 
     /**
+     * OpenRouter model id used only for pricing estimates.
+     * Default: openai/{model}
+     */
+    estimateModel?: string;
+
+    /**
      * Max: 100
      * Min: 5
      * Default: 50
@@ -153,6 +161,14 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
     }
 
     const model = config.model || DEFAULT_MODEL;
+    const estimateEngine = createOpenRouterEstimateEngine({
+        provider: 'openai',
+        model: config.estimateModel || model
+    });
+    const tokenUsage: EstimateTokenUsage = {
+        inputTokens: 0,
+        outputTokens: 0
+    };
 
     const MAX_CHUNK_SIZE = Math.min(100, Math.max(5, config.chunkSize || 50));
     const TIMEOUT_MS = (config.timeoutSeconds || 25) * 1000;
@@ -372,6 +388,8 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
                         { role: 'user', content: JSON.stringify(chunk.baseTranslations) }
                     ]
                 });
+                tokenUsage.inputTokens += response.usage?.prompt_tokens || 0;
+                tokenUsage.outputTokens += response.usage?.completion_tokens || 0;
 
                 const translatedChunk = response.choices[0].message.parsed;
                 if (!translatedChunk) {
@@ -446,6 +464,23 @@ export function createOpenAITranslateEngine(config: OpenAIConfig): TranslateEngi
         type: 'llm',
 
         canBeTrustedWithVariablesTranslation: true,
+
+        async initializeEstimate(options: TranslateOptions) {
+            tokenUsage.inputTokens = 0;
+            tokenUsage.outputTokens = 0;
+            const result = await estimateEngine.initialize();
+            // const logger = options.logger || defaultLogger;
+            // logger.engineDebug('OpenAI', `${estimateEngine.name} ${result.message}`);
+            return result;
+        },
+
+        estimatePrice(usage: EstimateUsage) {
+            return estimateEngine.estimatePrice(usage);
+        },
+
+        getUsage() {
+            return {...tokenUsage};
+        },
 
         async translate(
             translations: Record<string, any>,

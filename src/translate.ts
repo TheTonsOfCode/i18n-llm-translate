@@ -88,6 +88,17 @@ async function runTranslatePipeline(engine: TranslateEngine, options: TranslateO
     cache.syncCacheWithNamespaces(namespaces, false);
 
     logger.info(`Using engine: "${engine.name}"`);
+    if (engine.initializeEstimate) {
+        const estimateInitialization = await engine.initializeEstimate(options);
+        if (estimateInitialization.message) {
+            const message = `Estimate engine: ${estimateInitialization.message}`;
+            if (estimateInitialization.ok) {
+                logger.info(message);
+            } else {
+                logger.warn(message);
+            }
+        }
+    }
 
     let dirty = false;
     let totalBaseDifferencesCount = 0;
@@ -225,10 +236,21 @@ async function runTranslatePipeline(engine: TranslateEngine, options: TranslateO
         }
         logger.info(`Total characters sent for translation: ${totalCharactersTranslated}`);
         
-        // Show price estimation if engine supports it
-        if (engine.estimatePrice && totalCharactersTranslated > 0) {
-            const priceEstimate = engine.estimatePrice({ charactersCount: totalCharactersTranslated });
-            if (priceEstimate) logger.info(`Estimated cost: ${priceEstimate}`);
+        const usage = engine.getUsage?.() || {charactersCount: totalCharactersTranslated};
+        if ('inputTokens' in usage) {
+            logger.info(`Total tokens sent for translation: input ${usage.inputTokens}, output ${usage.outputTokens}`);
+        }
+
+        if (engine.estimatePrice && ('charactersCount' in usage ? usage.charactersCount > 0 : true)) {
+            const priceEstimate = engine.estimatePrice(usage);
+            if (typeof priceEstimate === 'string') {
+                logger.info(`Estimated cost: ${priceEstimate}`);
+            } else if (priceEstimate) {
+                logger.info(`Estimated cost: ${priceEstimate.formatted}`);
+                if (!priceEstimate.available && priceEstimate.message) {
+                    logger.warn(priceEstimate.message);
+                }
+            }
         }
 
         logger.success(`Translated and saved successfully in ${formatDuration(duration)}`);
