@@ -4,8 +4,9 @@ import {createDeepLTranslateEngine} from "$/engines/ml/deepl";
 import {createGoogleTranslateEngine} from "$/engines/ml/google_";
 import {createOpenAITranslateEngine} from "$/engines/llm/openai";
 import {createClaudeTranslateEngine} from "$/engines/llm/claude";
+import {createDeepSeekTranslateEngine} from "$/engines/llm/deepseek";
 
-const EngineKeys = ['dummy', 'openai', 'openai-4o', 'deepl', 'google', 'claude'] as const;
+const EngineKeys = ['dummy', 'openai', 'openai-4o', 'deepl', 'google', 'claude', 'deepseek'] as const;
 type EngineKey = typeof EngineKeys[number];
 
 let MOCK_ENGINES: TranslateEngine[] | undefined = undefined;
@@ -18,7 +19,7 @@ export function getMockEngines(): TranslateEngine[] {
     const enginesNames: EngineKey[] = (process.env?.TEST_ENGINES?.split(',') || ['dummy']) as unknown as EngineKey[];
 
     for (let engineName of enginesNames) {
-        // @ts-ignore
+        // @ts-expect-error Runtime validation intentionally accepts arbitrary env values.
         if (!EngineKeys.includes(engineName)) {
             throw new Error(`Translate engine "${engineName}" not found.`);
         }
@@ -52,6 +53,12 @@ export function getMockEngines(): TranslateEngine[] {
     if (enabled('claude')) {
         engines.push(createClaudeTranslateEngine({
             apiKey: process.env.CLAUDE_API_KEY!
+        }));
+    }
+
+    if (enabled('deepseek')) {
+        engines.push(createDeepSeekTranslateEngine({
+            apiKey: process.env.DEEPSEEK_API_KEY!
         }));
     }
 

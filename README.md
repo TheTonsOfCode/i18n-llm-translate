@@ -6,6 +6,7 @@
 - Claude Sonnet 3.7, translates whole namespace file, so it can be most accurate, but sloooow, check for pricing 
     - maybe implement chunking
 - OpenAI is fastest LLM implementation here, with good context is like 99% on point
+- DeepSeek supports the OpenAI-compatible API and JSON output. Current config models: `v4-flash`, `v4-pro`, `chat`, `reasoner`
 - DeepL is like 70% on point
 - Google Translate provides good quality translations with wide language support
 

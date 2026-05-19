@@ -41,6 +41,9 @@ npm run test:engine:openai-4o
 # Test Claude engine
 npm run test:engine:claude
 
+# Test DeepSeek engine
+npm run test:engine:deepseek
+
 # Test Google Translate engine
 npm run test:engine:google
 ```
@@ -82,5 +85,6 @@ Engines are configured in `shared.ts` and can be enabled/disabled based on the `
 - `openai` - Requires `OPENAI_API_KEY`
 - `openai-4o` - Requires `OPENAI_API_KEY`, uses GPT-4o model
 - `claude` - Requires `CLAUDE_API_KEY`
+- `deepseek` - Requires `DEEPSEEK_API_KEY`
 - `google` - Requires `GOOGLE_API_KEY`
 - `*` - All available engines
